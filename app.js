@@ -1,13 +1,21 @@
 var express = require('express');
-var session = require('express-session')
 var mongoose = require("mongoose");
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var auth = require('./module/auth'); //Module use for all authentification on server
+
 
 require('./models/user.js');
 var User = mongoose.model('User');
 
 var app = express();
-app.use(session({ secret: '1234567890QWERTY' }));
+
+//require to allow session variables, used for authentification
+var session = require('express-session')
+app.use(session({ secret: '123456789QWERTY' }));
+
+//required to parse post request
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 var db = mongoose.connection;
 db.on('error', console.error);
@@ -40,36 +48,41 @@ db.once('open', function() {
 
 mongoose.connect('mongodb://localhost/ageg');
 
-//voir https://github.com/kylepixel/cas-authentication pour fonctionnement
-var CASAuthentication = require('cas-authentication');
 
-var cas = new CASAuthentication({
-    cas_url     : 'https://cas.usherbrooke.ca/',
-    service_url : 'http://localhost:8080'
-});
 
 // Unauthenticated clients will be redirected to the CAS login and then back to
 // this route once authenticated.
-app.get('/app', cas.bounce, function (req, res) {
-    res.send('<html><body>Hello!</body></html>');
+app.get('/login', auth.bounce, function (req, res) {
+    res.redirect('/');
+});
+
+app.get('/firstLogin', auth.bounceWOCheck, function (req, res) {
+    User.findOne({ cip: req.session[ auth.userName ] }, function (err, obj) {
+        if (!obj) {
+            res.json({ succes: 'hello' }); //If the user is in our database, make sure he is in it
+        }
+        else {
+            res.redirect('/'); //If the user is in our database, he can't acces this page
+        }
+    })
 });
 
 // Unauthenticated clients will receive a 401 Unauthorized response instead of
 // the JSON data.
-app.get('/api', cas.block, function (req, res) {
+app.get('/api', auth.block, function (req, res) {
     res.json({ success: true });
 });
 
 // An example of accessing the CAS user session variable. This could be used to
 // retrieve your own local user records based on authenticated CAS username.
-app.get('/api/user', cas.block, function (req, res) {
-    res.json({ cas_user: req.session[ cas.session_name ] });
+app.get('/api/user', auth.block, function (req, res) {
+    res.json({ cas_user: req.session[ auth.userName ] });
 });
 
 // Unauthenticated clients will be redirected to the CAS login and then to the
 // provided "redirectTo" query parameter once authenticated.
-app.get('/authenticate', cas.bounce_redirect);
+app.get('/authenticate', auth.bounceRedirect);
 
 // This route will de-authenticate the client with the Express server and then
 // redirect the client to the CAS logout page.
-app.get('/logout', cas.logout);
+app.get('/logout', auth.logout);

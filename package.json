@@ -4,7 +4,6 @@
     "cas-authentication": "0.0.3",
     "express": "^4.12.3",
     "express-session": "^1.11.2",
-    "mongoose": "^4.0.1",
-    "xcas": "^0.1.0"
+    "mongoose": "^4.0.1"
   }
 }
