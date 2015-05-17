@@ -1,7 +1,10 @@
 {
   "dependencies": {
     "body-parser": "^1.12.4",
+    "cas-authentication": "0.0.3",
     "express": "^4.12.3",
-    "mongoose": "^4.0.1"
+    "express-session": "^1.11.2",
+    "mongoose": "^4.0.1",
+    "xcas": "^0.1.0"
   }
 }
