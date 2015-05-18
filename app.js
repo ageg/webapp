@@ -26,7 +26,9 @@ app.use(bodyParser.json());
 var index = require("./routes/index.js");
 app.get('/', index);
 
-app.get('/login', auth.bounce);
+app.get('/login', auth.bounce, function (req, res) {
+    res.redirect('/');
+});
 
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);

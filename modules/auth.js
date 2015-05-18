@@ -27,7 +27,7 @@ var User = mongoose.model('User');
 
 var cas = new CASAuthentication({
     cas_url     : 'https://cas.usherbrooke.ca/',
-    service_url : 'http://localhost:8080'
+    service_url : 'http://localhost:' + (process.env.PORT || '8080')
 });
 
 
