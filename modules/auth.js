@@ -17,7 +17,7 @@
 */
 
 
-//ser https://github.com/kylepixel/cas-authentication 
+// See https://github.com/kylepixel/cas-authentication 
 var CASAuthentication = require('cas-authentication');
 
 //Load db to acess user data
@@ -33,15 +33,16 @@ var cas = new CASAuthentication({
 
 
 bounce = [cas.bounce, function (req, res, next) {
-        User.findOne({ cip: req.session[ cas.session_name ] }, function (err, obj) {
-            if (!obj) {
-                res.redirect('/firstLogin'); //If the user is not in our database
-            }
-            else {
-                next();
-            }
-        });
-    }];
+  var cip = req.session[ cas.session_name ];
+  User.findOne({ cip: cip }, function (err, obj) {
+    if (!obj) {
+      res.render("add_user", {cip : cip});
+    }
+    else {
+      res.redirect('/');
+    }
+  });
+}];
 
 
 block = [cas.block, function (req, res, next) {

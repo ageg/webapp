@@ -5,8 +5,9 @@ var UserSchema = new Schema({
 	cip: String,
 	prenom: String,
 	nom: String,
-	promo: Number,
-	concentration: String
+	email: String,
+	concentration: String,
+	promo: Number
 });
 
 UserSchema.methods = {
