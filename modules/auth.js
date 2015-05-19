@@ -26,35 +26,25 @@ require('../models/user.js');
 var User = mongoose.model('User');
 
 var cas = new CASAuthentication({
-    cas_url     : 'https://cas.usherbrooke.ca/',
+    cas_url     : 'https://cas.usherbrooke.ca',
     service_url : 'http://localhost:' + (process.env.PORT || '8080')
 });
 
+check = function (req, res, next) {
+    var cip = req.session[ cas.session_name ];
+    User.findOne({ cip: cip }, function (err, obj) {
+        if (!obj) {
+            res.render("add_user", { cip : cip });
+        }
+        else {
+            next();
+        }
+    });
+}
 
+bounce = [cas.bounce, check];
 
-bounce = [cas.bounce, function (req, res, next) {
-  var cip = req.session[ cas.session_name ];
-  User.findOne({ cip: cip }, function (err, obj) {
-    if (!obj) {
-      res.render("add_user", {cip : cip});
-    }
-    else {
-      res.redirect('/');
-    }
-  });
-}];
-
-
-block = [cas.block, function (req, res, next) {
-        User.findOne({ cip: req.session[ cas.session_name ] }, function (err, obj) {
-            if (!obj) {
-                res.redirect('/firstLogin'); //If the user is not in our database
-            }
-            else {
-                next();
-            }
-        });
-    }];
+block = [cas.block, check];
 
 module.exports = {
     userNameSession: cas.session_name,
