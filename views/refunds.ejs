@@ -2,21 +2,49 @@
     <p>Demandes de remboursement de l'AGEG</p>
 </div>
 <form role="form" action="/refunds" method="post">
-  <div class="form-group">
-    <label for="cip">CIP:</label>
-    <input type="text" class="form-control" id="cip" name="cip">
-  </div>
-  <div class="form-group">
-    <label for="prenom">Prénom:</label>
-    <input type="text" class="form-control" id="prenom" name="prenom">
-  </div>
-  <div class="form-group">
-    <label for="nom">Nom:</label>
-    <input type="text" class="form-control" id="nom" name="nom">
-  </div>
-  <div class="form-group">
-    <label for="email">Adresse courriel:</label>
-    <input type="email" class="form-control" id="email" name="email">
-  </div>
+	<fieldset>
+		<legend>Demandeur:</legend>
+		<div class="form-group">
+			<label for="cip">CIP:</label>
+			<input type="text" class="form-control" id="cip" name="cip">
+		</div>
+		<div class="form-group">
+			<label for="prenom">Prénom:</label>
+			<input type="text" class="form-control" id="prenom" name="prenom">
+		</div>
+		<div class="form-group">
+			<label for="nom">Nom:</label>
+			<input type="text" class="form-control" id="nom" name="nom">
+		</div>
+		<div class="form-group">
+			<label for="email">Adresse courriel:</label>
+			<input type="email" class="form-control" id="email" name="email">
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>Demande</legend>
+		<input type="hidden" class="form-control" id="refund_id" name="refund_id">
+		<div class="form-group">
+			<label for="reference">Référence</label>
+			<input type="text" class="form-control" id="reference" name="reference">
+		</div>
+		<div class="form-group">
+			<label for="category">Catégorie budgétaire</label>
+			<input type="text" class="form-control" id="category" name="category">
+		</div>
+		<div class="form-group">
+			<label for="total">Total</label>
+			<output name="total"></output>
+			<input type="hidden" class="form-control" id="total" name="total">
+		</div>
+		<div class="form-group">
+			<label for="notes">Notes</label>
+			<input type="textarea" class="form-control" id="notes" name="notes">
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>Factures</legend>
+		<input type="hidden" class="form-control" id="bill_count" name="bill_count">
+	</fieldset>
   <button type="submit" class="btn btn-default">Submit</button>
 </form>
