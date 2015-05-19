@@ -1,12 +1,12 @@
+var config = require('./config/config');
 var express = require('express');
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
-var http = require("http");
+var https = require('https'); // use HTTPS Server
 var ejsLayouts = require("express-ejs-layouts");
 var auth = require('./modules/auth'); // Module use for all authentification on server
 
 var app = express();
-app.set("port", process.env.PORT || 8080);
 app.use(express.static(__dirname + '/public'));
 
 // Set view engine and defaut layout
@@ -16,7 +16,7 @@ app.set("views","./views");
 
 // Require to allow session variables, used for authentification
 var session = require('express-session');
-app.use(session({ secret: '123456789QWERTY' }));
+app.use(session(config.session));
 
 // Required to parse post request
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,10 +38,10 @@ app.post('/addUser', add_user);
 var db = mongoose.connection;
 db.on('error', console.error);
 db.once('open', function() {
-  var server = app.listen(app.get("port"), function () {
-    var host = server.address().address;
-    console.log('App listening at http://%s:%s', host, app.get("port"));
-  });
+	var server = https.createServer(config.ssloptions, app).listen(8443, function(){
+		var host = server.address().address;
+		console.log('App listening at http://%s:8443', host);
+	});
 });
 
 mongoose.connect('mongodb://localhost/ageg');
