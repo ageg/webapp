@@ -1,10 +1,6 @@
 var config = {};
 var fs = require('fs');
 
-config.jadeoptions = {
-	pretty: '\t'
-};
-
 config.ssloptions = {
   key: fs.readFileSync('./config/server.key'),
   cert: fs.readFileSync('./config/server.crt'),
