@@ -25,9 +25,15 @@ var mongoose = require("mongoose");
 require('../models/user.js');
 var User = mongoose.model('User');
 
+adminRights = {
+    NONE: 0,
+    PERMIE: 1,
+    ADMIN: 2
+}
+
 var cas = new CASAuthentication({
     cas_url     : 'https://cas.usherbrooke.ca',
-    service_url : 'http://localhost:' + (process.env.PORT || '8080')
+    service_url : 'http://localhost:' + ('8080')
 });
 
 check = function (req, res, next) {
@@ -42,7 +48,32 @@ check = function (req, res, next) {
     });
 }
 
+allow = function(rights) {
+    return function(req, res, next) {
+        var cip = req.session[cas.session_name];
+        User.findOne({ cip: cip }, function (err, obj) {
+            var found = false;
+            if (obj) {
+                rights.forEach(function(element, index, array) {
+                    if (obj.rights == element) {
+                        found = true;
+                        next();
+                    }
+                });
+            }
+
+            if (!found) {
+                res.render('forbidden');
+            }
+        });
+    }
+}
+
 bounce = [cas.bounce, check];
+
+allow_permie = [cas.bounce, check, allow([adminRights.PERMIE, adminRights.ADMIN])];
+
+allow_admin = [cas.bounce, check, allow([adminRights.ADMIN])];
 
 block = [cas.block, check];
 
@@ -53,7 +84,11 @@ module.exports = {
     logout: cas.logout,
     bounce: bounce,
     block: block,
-    bounceRedirect: cas.bounce_redirect
+    bounceRedirect: cas.bounce_redirect,
+    adminRights: adminRights,
+    allow_permie: allow_permie,
+    allow_admin: allow_admin,
+    cas: cas
 }
 
 /*

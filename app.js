@@ -4,9 +4,10 @@ var bodyParser = require('body-parser');
 var http = require("http");
 var ejsLayouts = require("express-ejs-layouts");
 var auth = require('./modules/auth'); // Module use for all authentification on server
+var User = mongoose.model('User');
 
 var app = express();
-app.set("port", process.env.PORT || 8080);
+app.set("port", 8080);
 app.use(express.static(__dirname + '/public'));
 
 // Set view engine and defaut layout
@@ -22,6 +23,18 @@ app.use(session({ secret: '123456789QWERTY' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Middleware to send user info to layout
+app.use(function (req, res, next) {
+    var cip = req.session[ auth.cas.session_name ];
+    User.findOne({ cip: cip }, function (err, obj) {
+        if (obj) {
+            res.locals.userInfo = obj;
+        }
+
+        next();
+    });
+});
+
 // Routes
 var index = require("./routes/index.js");
 app.get('/', index);
@@ -33,6 +46,7 @@ app.get('/login', auth.bounce, function (req, res) {
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
+app.use('/', require('./routes/admin.js'));
 
 // Start the server after the db connection
 var db = mongoose.connection;
