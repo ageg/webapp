@@ -34,7 +34,7 @@ var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
 var refunds = require("./routes/refunds.js");
-app.get('/refunds', refunds);
+app.get('/refunds', refunds.refunds);
 
 // Start the server after the db connection
 var db = mongoose.connection;
