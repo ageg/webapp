@@ -26,47 +26,62 @@ require('../models/user.js');
 var User = mongoose.model('User');
 
 adminRights = {
-    NONE: 0,
-    PERMIE: 1,
-    ADMIN: 2
+  NONE: 0,
+  PERMIE: 1,
+  ADMIN: 2
 }
 
 var cas = new CASAuthentication({
-    cas_url     : 'https://cas.usherbrooke.ca',
-    service_url : 'http://localhost:' + ('8080')
+  cas_url     : 'https://cas.usherbrooke.ca',
+  service_url : 'http://localhost:' + ('8080')
 });
 
-check = function (req, res, next) {
-    var cip = req.session[ cas.session_name ];
-    User.findOne({ cip: cip }, function (err, obj) {
-        if (!obj) {
-            res.render("add_user", { cip : cip });
-        }
-        else {
-            next();
-        }
-    });
+setSessionUserInfo = function (req, callback) {
+  var cip = req.session[cas.session_name];
+  User.findOne({ cip: cip }, function (err, obj) {
+    if (obj) {
+      req.session.userInfo = obj;
+    }
+    
+    callback();
+  });
 }
 
-allow = function(rights) {
-    return function(req, res, next) {
-        var cip = req.session[cas.session_name];
-        User.findOne({ cip: cip }, function (err, obj) {
-            var found = false;
-            if (obj) {
-                rights.forEach(function(element, index, array) {
-                    if (obj.rights == element) {
-                        found = true;
-                        next();
-                    }
-                });
-            }
+check = function (req, res, next) {
+  if (!req.session.userInfo) {
+    var cip = req.session[cas.session_name];
+    User.findOne({ cip: cip }, function (err, obj) {
+      if (!obj) {
+        res.render("add_user", { cip: cip });
+      } else {
+        next();
+      }
+    });
+  } else {
+    next();
+  }
+}
 
-            if (!found) {
-                res.render('forbidden');
-            }
+allow = function (rights) {
+  return function (req, res, next) {
+    var cip = req.session[cas.session_name];
+    User.findOne({ cip: cip }, function (err, obj) {
+      var found = false;
+      if (obj) {
+        rights.forEach(function (element, index, array) {
+          if (obj.rights == element) {
+            found = true;
+            next();
+          }
         });
-    }
+      }
+      
+      if (!found) {
+        res.status('403');
+        res.send('403: Forbidden');
+      }
+    });
+  }
 }
 
 bounce = [cas.bounce, check];
@@ -78,17 +93,18 @@ allow_admin = [cas.bounce, check, allow([adminRights.ADMIN])];
 block = [cas.block, check];
 
 module.exports = {
-    userNameSession: cas.session_name,
-    bounceWOCheck: cas.bounce,
-    blockWOCheck: cas.block,
-    logout: cas.logout,
-    bounce: bounce,
-    block: block,
-    bounceRedirect: cas.bounce_redirect,
-    adminRights: adminRights,
-    allow_permie: allow_permie,
-    allow_admin: allow_admin,
-    cas: cas
+  userNameSession: cas.session_name,
+  bounceWOCheck: cas.bounce,
+  blockWOCheck: cas.block,
+  logout: cas.logout,
+  bounce: bounce,
+  block: block,
+  bounceRedirect: cas.bounce_redirect,
+  adminRights: adminRights,
+  allow_permie: allow_permie,
+  allow_admin: allow_admin,
+  cas: cas,
+  setSessionUserInfo: setSessionUserInfo
 }
 
 /*

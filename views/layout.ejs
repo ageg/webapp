@@ -24,10 +24,10 @@
 
                 <ul class="nav navbar-nav">
                     <li><a href="/">Home</a></li>
-					<% if(typeof userInfo === 'undefined') { %>
+					<% if(typeof userInfo == 'undefined') { %>
 						<li><a href="/login">Connection</a></li>
 					<% } else {%>
-						<% if(userInfo.rights > 1){ %>
+						<% if(userInfo.rights == adminRights.ADMIN){ %>
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin</a>
 								<ul class="dropdown-menu" role="menu">
@@ -36,6 +36,7 @@
 							</li>
 						<% } %>
 						<li><a href="/"><%= userInfo.cip %></a></li>
+						<li><a href="/logout">Logout</a></li>
 					<% } %>
                 </ul>
               

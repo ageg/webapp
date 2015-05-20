@@ -31,6 +31,7 @@ module.exports = function(req, res) {
             });
         }
 
+        req.session.userInfo = user;
         user.save(function(err) {
             if (err) throw err;
             res.redirect('/');

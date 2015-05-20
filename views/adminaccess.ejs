@@ -1,26 +1,28 @@
-﻿<% if(typeof successMessage != "undefined") { %><h3 style="color:green;"><%= successMessage %></h3> <% } %>
-<table id="userTable" class="table">
-  <tr>
-    <td>
-      <label for="users[0].cip">CIP</label>
-    </td>
-    <td>
-      <label for="users[0].rights">Rights</label>
-    </td>
-  </tr>
-  <% users.forEach(function(user, idx) { %>
-  <tr>
-    <td>
-      <input type="text" class="form-control" name="cip" value="<%= user.cip %>" readonly>
-    </td>
-    <td>
-      <select class="form-control" name="rights">
+﻿<form role="form" action="/admin/access" method="post">
+	<% if(typeof successMessage != "undefined") { %><h3 style="color:green;"><%= successMessage %></h3> <% } %>
+	<table id="userTable" class="table">
+	  <tr>
+		<td>
+		  <label for="cip">CIP</label>
+		</td>
+		<td>
+		  <label for="rights">Rights</label>
+		</td>
+	  </tr>
+	  <% users.forEach(function(user, idx) { %>
+	  <tr>
+		<td>
+		  <input type="text" class="form-control" name="<%= user.cip %>.cip" value="<%= user.cip %>" readonly>
+		</td>
+		<td>
+		  <select class="form-control" name="<%= user.cip %>.rights">
         <option value="0" <% if(user.rights == 0) { %> selected <% } %> >None</option>
-        <option value="1" <% if(user.rights == 1) { %> selected <% } %>>Permie</option>
-        <option value="2" <% if(user.rights == 2) { %> selected <% } %>>Admin</option>
-      </select>
-    </td>
-  </tr>
-  <% }) %>
-</table>
-<button type="submit" class="btn btn-default" onclick="postListFromTable('userTable', '/admin/access')">Submit</button>
+			<option value="1" <% if(user.rights == 1) { %> selected <% } %>>Permie</option>
+			<option value="2" <% if(user.rights == 2) { %> selected <% } %>>Admin</option>
+		  </select>
+		</td>
+	  </tr>
+	  <% }) %>
+	</table>
+	<button type="submit" class="btn btn-default" onclick="postListFromTable('userTable', '/admin/access')">Submit</button>
+</form>

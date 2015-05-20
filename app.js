@@ -25,14 +25,12 @@ app.use(bodyParser.json());
 
 // Middleware to send user info to layout
 app.use(function (req, res, next) {
-    var cip = req.session[ auth.cas.session_name ];
-    User.findOne({ cip: cip }, function (err, obj) {
-        if (obj) {
-            res.locals.userInfo = obj;
-        }
+  if (req.session.userInfo) {
+    res.locals.userInfo = req.session.userInfo;
+  }
 
-        next();
-    });
+  res.locals.adminRights = auth.adminRights;
+  next();
 });
 
 // Routes
@@ -40,7 +38,15 @@ var index = require("./routes/index.js");
 app.get('/', index);
 
 app.get('/login', auth.bounce, function (req, res) {
+  auth.setSessionUserInfo(req, function() {
     res.redirect('/');
+  });
+});
+
+app.get('/logout', function (req, res) {
+  delete req.session.userInfo;
+  delete req.session[auth.userNameSession];
+  res.redirect('/');
 });
 
 var add_user = require("./routes/add_user.js");
