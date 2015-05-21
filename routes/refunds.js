@@ -1,13 +1,15 @@
 require('../models/refunds.js');
 var mongoose = require("mongoose");
 var Request = mongoose.model('Request');
+var express = require('express');
+var router = express.Router();
 
-module.exports.refunds = function (req, res) {
+router.get('/refunds', function(req, res) {
 	// TODO: pick up data from session/Mongo, then seed it to form
 	res.render("refunds");
-};
+});
 
-module.exports.parsePOST = function(req, res) {
+router.post('/refunds', function(req, res) {
   var infos = req.body;
   var request = new Request({
     // TODO: Sanity Checks
@@ -26,4 +28,6 @@ module.exports.parsePOST = function(req, res) {
     if (err) throw err;
     res.redirect('/');
   });
-}
+});
+
+module.exports = router;
