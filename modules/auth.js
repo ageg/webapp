@@ -25,35 +25,86 @@ var mongoose = require("mongoose");
 require('../models/user.js');
 var User = mongoose.model('User');
 
+adminRights = {
+  NONE: 0,
+  PERMIE: 1,
+  ADMIN: 2
+}
+
 var cas = new CASAuthentication({
-    cas_url     : 'https://cas.usherbrooke.ca',
-    service_url : 'http://localhost:' + (process.env.PORT || '8080')
+  cas_url     : 'https://cas.usherbrooke.ca',
+  service_url : 'https://localhost:' + ('8443')
 });
 
+setSessionUserInfo = function (req, callback) {
+  var cip = req.session[cas.session_name];
+  User.findOne({ cip: cip }, function (err, obj) {
+    if (obj) {
+      req.session.userInfo = obj;
+    }
+    
+    callback();
+  });
+}
+
 check = function (req, res, next) {
-    var cip = req.session[ cas.session_name ];
+  if (!req.session.userInfo) {
+    var cip = req.session[cas.session_name];
     User.findOne({ cip: cip }, function (err, obj) {
-        if (!obj) {
-            res.render("add_user", { cip : cip });
-        }
-        else {
-            next();
-        }
+      if (!obj) {
+        res.render("add_user", { cip: cip });
+      } else {
+        next();
+      }
     });
+  } else {
+    next();
+  }
+}
+
+allow = function (rights) {
+  return function (req, res, next) {
+    var cip = req.session[cas.session_name];
+    User.findOne({ cip: cip }, function (err, obj) {
+      var found = false;
+      if (obj) {
+        rights.forEach(function (element, index, array) {
+          if (obj.rights == element) {
+            found = true;
+            next();
+          }
+        });
+      }
+      
+      if (!found) {
+        res.status('403');
+        res.send('403: Forbidden');
+      }
+    });
+  }
 }
 
 bounce = [cas.bounce, check];
 
+allow_permie = [cas.bounce, check, allow([adminRights.PERMIE, adminRights.ADMIN])];
+
+allow_admin = [cas.bounce, check, allow([adminRights.ADMIN])];
+
 block = [cas.block, check];
 
 module.exports = {
-    userNameSession: cas.session_name,
-    bounceWOCheck: cas.bounce,
-    blockWOCheck: cas.block,
-    logout: cas.logout,
-    bounce: bounce,
-    block: block,
-    bounceRedirect: cas.bounce_redirect
+  userNameSession: cas.session_name,
+  bounceWOCheck: cas.bounce,
+  blockWOCheck: cas.block,
+  logout: cas.logout,
+  bounce: bounce,
+  block: block,
+  bounceRedirect: cas.bounce_redirect,
+  adminRights: adminRights,
+  allow_permie: allow_permie,
+  allow_admin: allow_admin,
+  cas: cas,
+  setSessionUserInfo: setSessionUserInfo
 }
 
 /*
