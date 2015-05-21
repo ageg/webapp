@@ -1,4 +1,5 @@
-﻿var express = require('express'), router = express.Router();
+﻿var express = require('express');
+var router = express.Router();
 var auth = require('../modules/auth');
 var mongoose = require("mongoose");
 var User = mongoose.model('User');

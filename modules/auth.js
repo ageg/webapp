@@ -27,8 +27,9 @@ var User = mongoose.model('User');
 
 adminRights = {
   NONE: 0,
-  PERMIE: 1,
-  ADMIN: 2
+  BANDANA: 1,
+  PERMIE: 2,
+  ADMIN: 3
 }
 
 var cas = new CASAuthentication({
@@ -85,6 +86,8 @@ allow = function (rights) {
 }
 
 bounce = [cas.bounce, check];
+
+allow_bandana = [cas.bounce, check, allow([adminRights.BANDANA, adminRights.PERMIE, adminRights.ADMIN])];
 
 allow_permie = [cas.bounce, check, allow([adminRights.PERMIE, adminRights.ADMIN])];
 
