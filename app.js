@@ -33,9 +33,7 @@ app.get('/login', auth.bounce, function (req, res) {
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
-var add_location = require("./routes/add_location.js");
-app.get('/add_location', auth.bounce, add_location.get);
-app.post('/add_location', add_location.post);
+app.use('/', require('./routes/add_location.js'));
 
 
 // Start the server after the db connection
