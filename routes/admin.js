@@ -8,17 +8,17 @@ router.get('/admin/access', allow_admin, function (req, res) {
   User.find({}, function (err, dbUsers) {
     if (err) throw err;
     
-    var toSend = _.sortBy(dbUsers, function (user) {
+    var sortedUsers = _.sortBy(dbUsers, function (user) {
       return user.cip;
     });
     
     if (req.query.hasOwnProperty('success')) {
       res.render('adminaccess', {
-        users: toSend,
+        users: sortedUsers,
         successMessage: 'The changes were made successfully'
       });
     } else {
-      res.render('adminaccess', { users: toSend });
+      res.render('adminaccess', { users: sortedUsers });
     }
   });
 });
