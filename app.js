@@ -52,13 +52,9 @@ app.get('/logout', function (req, res) {
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
-<<<<<<< HEAD
 app.use('/', require('./routes/refunds.js'));
-=======
 app.use('/', require('./routes/add_location.js'));
-
 app.use('/', require('./routes/admin.js'));
->>>>>>> master
 
 // Start the server after the db connection
 var db = mongoose.connection;

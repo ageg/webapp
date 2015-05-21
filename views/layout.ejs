@@ -22,19 +22,10 @@
           </a>
         </div>
 
-<<<<<<< HEAD
-        <ul class="nav navbar-nav">
-          <li><a href="/">Home</a></li>
-          <li><a href="/refunds">Remboursements</a></li>
-          <li><a href="/login">Connexion</a></li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-=======
                 <ul class="nav navbar-nav">
                     <li><a href="/">Home</a></li>
 					<li><a href="/add_location">Locations</a></li>
+					<li><a href="/refunds">Remboursements</a></li>
 					<% if(typeof userInfo == 'undefined') { %>
 						<li><a href="/login">Connection</a></li>
 					<% } else {%>
@@ -54,28 +45,19 @@
             </div>
         </nav>
     </header>
->>>>>>> master
 
   <main>
     <%- body %>
   </main>
 
-<<<<<<< HEAD
   <footer>
     <p class="text-center text-muted"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a></p>
   </footer>
-  
+
   <script type="application/javascript" src="/js/jquery-1.11.3.min.js"></script>
   <script type="application/javascript" src="/js/bootstrap.min.js"></script>
-=======
-    <footer>
-        <p class="text-center text-muted">© Copyright 2015 AGEG</p>
-    </footer>
-    
-    <script type="application/javascript" src="/js/jquery-1.11.3.min.js"></script>
-    <script type="application/javascript" src="/js/bootstrap.min.js"></script>
-	<script type="application/javascript" src="/js/underscore-min.js"></script>
-	<script type="application/javascript" src="/js/agegscripts.js"></script>
->>>>>>> master
+  <script type="application/javascript" src="/js/underscore-min.js"></script>
+  <script type="application/javascript" src="/js/agegscripts.js"></script>
+
 </body>
 </html>
