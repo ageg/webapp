@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var https = require('https'); // use HTTPS Server
 var ejsLayouts = require("express-ejs-layouts");
 var auth = require('./modules/auth'); // Module use for all authentification on server
+var User = mongoose.model('User');
 
 var app = express();
 app.use(express.static(__dirname + '/public'));
@@ -22,17 +23,36 @@ app.use(session(config.session));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Middleware to send user info to layout
+app.use(function (req, res, next) {
+  if (req.session.userInfo) {
+    res.locals.userInfo = req.session.userInfo;
+  }
+
+  res.locals.adminRights = auth.adminRights;
+  next();
+});
+
 // Routes
 var index = require("./routes/index.js");
 app.get('/', index);
 
 app.get('/login', auth.bounce, function (req, res) {
+  auth.setSessionUserInfo(req, function() {
     res.redirect('/');
+  });
+});
+
+app.get('/logout', function (req, res) {
+  delete req.session.userInfo;
+  delete req.session[auth.userNameSession];
+  res.redirect('/');
 });
 
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
+app.use('/', require('./routes/admin.js'));
 
 // Start the server after the db connection
 var db = mongoose.connection;
