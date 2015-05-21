@@ -13,9 +13,8 @@ var RequestSchema = new Schema({
   notes: String
 });
 
-/*UserSchema.methods = {
-  name: function () {
-    return this.prenom + ' ' + this.nom;
+/*RequestSchema.methods = {
+  // TODO This!
   }
 }*/
 
