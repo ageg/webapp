@@ -2,13 +2,13 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-	cip: String,
-	prenom: String,
-	nom: String,
-	email: String,
-	concentration: String,
-    promo: Number,
-    rights: Number
+  cip: String,
+  prenom: String,
+  nom: String,
+  email: String,
+  concentration: String,
+  promo: Number,
+  rights: Number
 });
 
 UserSchema.methods = {

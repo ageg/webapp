@@ -5,8 +5,13 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/refunds', function(req, res) {
-	// TODO: pick up data from session/Mongo, then seed it to form
-	res.render("refunds");
+  // Check if session exists
+  if( typeof(req.session.userInfo) === 'undefined' ){
+    res.redirect('/login');
+    // TODO: Something awesome like redirect back to /refunds
+  } else {
+    res.render("refunds", {userInfo : req.session.userInfo});
+  }
 });
 
 router.post('/refunds', function(req, res) {
@@ -22,11 +27,12 @@ router.post('/refunds', function(req, res) {
     total: infos.total,
     notes: infos.notes
   });
-  console.log(request);
+  console.log(infos);
   // TODO: Actual work
+  
   request.save(function(err){
-    if (err) throw err;
-    res.redirect('/');
+  if (err) throw err;
+  res.redirect('/');
   });
 });
 

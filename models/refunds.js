@@ -11,6 +11,7 @@ var RequestSchema = new Schema({
   bill_count: Number,
   total: Number,
   notes: String
+  // TODO: Add submittedDate
 });
 
 /*RequestSchema.methods = {
