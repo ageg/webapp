@@ -82,7 +82,7 @@
   }
   
   function removeType(id){
-  var resp = confirm('Are you sure you want to delete ' + name);
+  var resp = confirm('Are you sure you want to delete?');
     if (resp) {
       $.ajax({
         url : window.location.href,
@@ -116,7 +116,6 @@
   
   function saveType(id) {
     var newType = {_id: id, name: $("#" + id + "\\.name").val(), defaultprice: $("#" + id + "\\.defaultprice").val(), pricedescription: $("#" + id + "\\.pricedescription").val()};
-    console.log(JSON.stringify(newType));
     $.ajax({
       url : window.location.href,
       type: "PUT",
@@ -138,5 +137,9 @@
         console.log(err);
       }
     });
+  }
+  
+  function editTags(id) {
+    window.location.href = "/bandana/edit/tag?typeid="+id;
   }
 </script>
