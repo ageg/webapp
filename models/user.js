@@ -17,4 +17,6 @@ UserSchema.methods = {
   }
 }
 
+module.exports = UserSchema;
+
 mongoose.model('User', UserSchema);
