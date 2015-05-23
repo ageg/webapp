@@ -17,4 +17,13 @@ router.post("/add_location", auth.bounce,  function (req, res) {
     res.json(req.body);
 });
 
+router.get("/edit_location", allow_permie, function (req, res) {
+    items.find({}, function (err, dbItems) {
+        if (err) throw err;
+        
+        res.render('edit_location', { items: JSON.stringify(dbItems) });
+    });
+});
+
+
 module.exports = router;

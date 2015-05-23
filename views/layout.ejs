@@ -29,6 +29,14 @@
 					<% if(typeof userInfo == 'undefined') { %>
 						<li><a href="/login">Connection</a></li>
 					<% } else {%>
+						<% if(userInfo.rights >= adminRights.PERMIE){ %>
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Permanence</a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="/edit_location">Ajout locations</a></li>
+								</ul>
+							</li>
+						<% } %>
 						<% if(userInfo.rights == adminRights.ADMIN){ %>
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin</a>
@@ -37,6 +45,7 @@
 								</ul>
 							</li>
 						<% } %>
+
 						<li><a href="/"><%= userInfo.cip %></a></li>
 						<li><a href="/logout">Logout</a></li>
 					<% } %>
@@ -57,7 +66,5 @@
   <script type="application/javascript" src="/js/jquery-1.11.3.min.js"></script>
   <script type="application/javascript" src="/js/bootstrap.min.js"></script>
   <script type="application/javascript" src="/js/underscore-min.js"></script>
-  <script type="application/javascript" src="/js/agegscripts.js"></script>
-
 </body>
 </html>

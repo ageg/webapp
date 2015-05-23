@@ -53,7 +53,7 @@ var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
 app.use('/', require('./routes/refunds.js'));
-app.use('/', require('./routes/add_location.js'));
+app.use('/', require('./routes/location.js'));
 app.use('/', require('./routes/admin.js'));
 
 // Start the server after the db connection
