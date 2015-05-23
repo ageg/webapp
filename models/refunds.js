@@ -2,13 +2,14 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var RequestSchema = new Schema({
+  ID: Number,
   cip: String,
   prenom: String,
   nom: String,
   email: String,
   reference: Number,
   category: String,
-  bill_count: Number,
+  billCount: Number,
   total: Number,
   notes: String
   // TODO: Add submittedDate
@@ -19,4 +20,13 @@ var RequestSchema = new Schema({
   }
 }*/
 
+var RequestBillSchema = new Schema({
+  billID: Number,
+  notes: String,
+  requestID: Number,
+  supplier: String,
+  value: Number
+});
+
 mongoose.model('Request', RequestSchema);
+mongoose.model('Bill', RequestBillSchema);

@@ -1,50 +1,71 @@
 <div class="jumbotron">
     <p>Demandes de remboursement de l'AGEG</p>
 </div>
-<form role="form" action="/refunds" method="post">
+<form role="form" action="/refunds" method="post" id="refunds" name="refunds">
 	<fieldset>
 		<legend>Demandeur:</legend>
 		<div class="form-group">
 			<label for="cip">CIP:</label>
-			<input type="text" class="form-control" id="cip" name="cip" value="<%= userInfo.cip %>" readonly required>
+			<input type="text" class="form-control" id="cip" name="cip" value="<%= reqInfo.cip %>" readonly required>
 		</div>
 		<div class="form-group">
 			<label for="prenom">Prénom:</label>
-			<input type="text" class="form-control" id="prenom" name="prenom" value="<%= userInfo.prenom %>"readonly required>
+			<input type="text" class="form-control" id="prenom" name="prenom" value="<%= reqInfo.prenom %>"readonly required>
 		</div>
 		<div class="form-group">
 			<label for="nom">Nom:</label>
-			<input type="text" class="form-control" id="nom" name="nom" value="<%= userInfo.nom %>" readonly required>
+			<input type="text" class="form-control" id="nom" name="nom" value="<%= reqInfo.nom %>" readonly required>
 		</div>
 		<div class="form-group">
 			<label for="email">Adresse courriel:</label>
-			<input type="email" class="form-control" id="email" name="email" value="<%= userInfo.email %>" readonly required>
+			<input type="email" class="form-control" id="email" name="email" value="<%= reqInfo.email %>" readonly required>
 		</div>
 	</fieldset>
 	<fieldset>
 		<legend>Demande</legend>
-		<input type="hidden" class="form-control" id="refund_id" name="refund_id" required>
+		<input type="hidden" class="form-control" id="refund_id" name="refund_id" value="<%= reqInfo.ID %>" required>
+		<input type="hidden" class="form-control" id="bill_count" name="bill_count" value="<%= reqInfo.billCount %>">
 		<div class="form-group">
 			<label for="reference">Référence</label>
-			<input type="text" class="form-control" id="reference" name="reference" required>
+			<input type="text" class="form-control" id="reference" name="reference" placeholder="Description de la demande" required>
 		</div>
 		<div class="form-group">
 			<label for="category">Catégorie budgétaire</label>
-			<input type="text" class="form-control" id="category" name="category" required>
+			<input type="text" class="form-control" id="category" name="category" placeholder="Catégorie Budgétaire" value="<%= reqInfo.category %>" required>
 		</div>
 		<div class="form-group">
 			<label for="total">Total</label>
-			<output name="total"></output>
-			<input type="hidden" class="form-control" id="total" name="total">
+			<output name="total"><%= reqInfo.total %>&nbsp;$</output>
+			<input type="hidden" class="form-control" id="total" name="total" value="<%= reqInfo.total %>">
 		</div>
 		<div class="form-group">
 			<label for="notes">Notes</label>
-			<input type="textarea" class="form-control" id="notes" name="notes" placeholder="Notes sur la demande">
+			<textarea class="form-control" id="notes" name="notes" placeholder="Notes sur la demande" rows="4" value="<%= reqInfo.notes %>"></textarea>
 		</div>
-		<input type="hidden" class="form-control" id="bill_count" name="bill_count">
 	</fieldset>
+	<% for(var billNo = 1; billNo <= reqInfo.billCount; billNo++){ %>
+    <% include refund_snippets/bills.ejs %>
+  <% } %>
 	<hr>
-	<button type="button" class="btn btn-default" name="add">Ajouter une facture</button>
+	<button type="button" class="btn btn-default" onClick="addBill()" name="add">Ajouter une facture</button>
 	<button type="button" class="btn btn-default" name="save">Sauvegarder la demande</buttton>
   <button type="submit" class="btn btn-default" name="submit">Soumettre la demande</button>
 </form>
+
+<script type="text/javascript">
+  function addBill()
+  {
+  document.getElementById('bill_count').value++;
+  var billCount = document.getElementById('bill_count').value;
+  //alert(billCount);
+  //var div = document.getElementById('objet_loue');
+  var form = document.getElementById('refunds');
+  
+  var billfs = document.createElement("fieldset");
+  var legend = document.createElement("legend");
+  legend.innerHTML="Facture #"+billCount;
+  
+  billfs.appendChild(legend);
+  form.appendChild(billfs);
+  }
+</script>

@@ -10,7 +10,22 @@ router.get('/refunds', function(req, res) {
     res.redirect('/login');
     // TODO: Something awesome like redirect back to /refunds
   } else {
-    res.render("refunds", {userInfo : req.session.userInfo});
+    // Fetch request from archives if need be
+    // TODO: Actual fetching instead of automatic seeding
+    
+    // NEW request
+    var request = new Request({
+      cip: req.session.userInfo.cip,
+      prenom: req.session.userInfo.prenom,
+      nom: req.session.userInfo.nom,
+      email: req.session.userInfo.email,
+      ID: 0, // TODO: ID-Assignation routines
+      billCount: 1,
+      category: '',
+      total: 0,
+      notes: ''
+    });
+    res.render("refunds", {reqInfo : request});
   }
 });
 
@@ -22,7 +37,7 @@ router.post('/refunds', function(req, res) {
     prenom: infos.prenom,
     nom: infos.nom,
     email: infos.email,
-    request_id: infos.request_id,
+    ID: infos.request_id,
     category: infos.category,
     total: infos.total,
     notes: infos.notes
