@@ -1,5 +1,6 @@
 ﻿var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
 
 var EditionSchema = new Schema({
   name: String,
@@ -9,14 +10,16 @@ var EditionSchema = new Schema({
 var TagSchema = new Schema({
   name : String,
   price: Number,
-  editions: [EditionSchema]
+  editions: [ObjectId]
 });
 
 var TagTypeSchema = new Schema({
   name : String,
   defaultprice : Number,
   pricedescription: String,
-  tags : [TagSchema]
+  tags : [ObjectId]
 });
 
 mongoose.model('TagType', TagTypeSchema);
+mongoose.model('Tag', TagSchema);
+mongoose.model('TagEdition', EditionSchema);

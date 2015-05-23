@@ -4,6 +4,8 @@ var router = express.Router();
 var auth = require('../modules/auth');
 var mongoose = require("mongoose");
 var TagType = mongoose.model('TagType');
+var Tag = mongoose.model('Tag');
+var TagEdition = mongoose.model('TagEdition');
 var _ = require('underscore');
 
 router.get('/bandana/commande', bounce, function (req, res) {
@@ -63,6 +65,64 @@ router.delete('/bandana/edit/type', allow_bandana, function (req, res) {
     } else {
       res.status(400);
       res.send(name + ' not found');
+    }
+  });
+});
+
+router.get('/bandana/edit/tag', allow_bandana, function(req, res) {
+  var typeId = req.query.typeid;
+  TagType.findOne({ _id: typeId }, function(err, type) {
+    if (err) throw err;
+    
+    if (type) {
+      Tag.find({ _id: { $in: type.tags } }, function (err, tagList) {
+        if (err) throw err;
+
+        res.render('editTags', { tags: JSON.stringify(tagList) });
+      });
+    } else {
+      res.status(404);
+      res.send('TagType not found');
+    }
+  });
+});
+
+router.post('/bandana/edit/tag', allow_bandana, function (req, res) {
+  var typeId = req.query.typeid;
+  TagType.findOne({ _id: typeId }, function (err, type) {
+    if (err) throw err;
+    
+    if (type) {
+      var tag = new Tag({
+        name: "new Tag",
+        price: 0
+      });
+
+      tag.save(function(err) {
+        if (err) throw err;
+        
+        type.tags.push(tag._id);
+        type.save(function(err) {
+          if (err) throw err;
+
+          res.send(JSON.stringify(tag));
+        });
+      });
+    } else {
+      res.status(404);
+      res.send('TagType not found');
+    }
+  });
+});
+
+router.delete('/bandana/edit/tag', allow_bandana, function (req, res) {
+  var typeId = req.query.typeid;
+  var tagId = req.body._id;
+  TagType.findOne({ _id: typeId }, function (err, type) {
+    if (err) throw err;
+
+    if (type) {
+      
     }
   });
 });
