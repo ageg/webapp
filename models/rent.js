@@ -3,10 +3,18 @@ var Schema = mongoose.Schema;
 var UserSchema = require('./user.js');
 var item_for_rent = require('./item_for_rent.js');
 
+/*Status:
+ * request
+ * invalid
+ * waitingAproval
+ * waitingPaiement
+ * ready
+ */
+
 var rent_schema = new Schema({
     user : [UserSchema],
     item : {
-        item: ObjectId,
+        item: Schema.Types.ObjectId,
         quantity: Number,
         status: String
     },

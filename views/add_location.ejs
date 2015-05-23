@@ -54,7 +54,9 @@
         <div class="col-md-10">
           <select class="form-control" id="item">
             <% for(var i=0; i < data.length; i++) {%>
-              <option id="item_<%-i%>"><%- data[i].name %></option>
+              <option id="item_<%-data[i]._id%>">
+                <%- data[i].name %>
+              </option>
             <% } %>
            </select>
         </div>
@@ -143,7 +145,7 @@
   if(checkBox.checked == true){
   endHour.readOnly = true;
   startHour.readOnly = true;
-  endHour.value = "00:00";
+  endHour.value = "23:59";
   startHour.value = "00:00";
   }
   else{
