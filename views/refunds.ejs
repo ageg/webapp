@@ -1,0 +1,47 @@
+<div class="jumbotron">
+    <p>Demandes de remboursement de l'AGEG</p>
+</div>
+<form role="form" action="/refunds" method="post">
+	<fieldset>
+		<legend>Demandeur:</legend>
+		<div class="form-group">
+			<label for="cip">CIP:</label>
+			<input type="text" class="form-control" id="cip" name="cip" required>
+		</div>
+		<div class="form-group">
+			<label for="prenom">Prénom:</label>
+			<input type="text" class="form-control" id="prenom" name="prenom" required>
+		</div>
+		<div class="form-group">
+			<label for="nom">Nom:</label>
+			<input type="text" class="form-control" id="nom" name="nom" required>
+		</div>
+		<div class="form-group">
+			<label for="email">Adresse courriel:</label>
+			<input type="email" class="form-control" id="email" name="email" required>
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>Demande</legend>
+		<input type="hidden" class="form-control" id="refund_id" name="refund_id" required>
+		<div class="form-group">
+			<label for="reference">Référence</label>
+			<input type="text" class="form-control" id="reference" name="reference" required>
+		</div>
+		<div class="form-group">
+			<label for="category">Catégorie budgétaire</label>
+			<input type="text" class="form-control" id="category" name="category" required>
+		</div>
+		<div class="form-group">
+			<label for="total">Total</label>
+			<output name="total"></output>
+			<input type="hidden" class="form-control" id="total" name="total">
+		</div>
+		<div class="form-group">
+			<label for="notes">Notes</label>
+			<input type="textarea" class="form-control" id="notes" name="notes">
+		</div>
+		<input type="hidden" class="form-control" id="bill_count" name="bill_count">
+	</fieldset>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
