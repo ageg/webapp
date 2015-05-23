@@ -10,17 +10,17 @@
 </div>
 
 <script type="text/x-jsrender" id="template-type">
-  <div class="row content-box" id="{{:name}}">
+  <div class="row content-box" id="{{:_id}}">
     <div class="col-md-8 vcenter">
       <h4>{{:name}}</h4>
     </div>
-    <button type="button" class="btn btn-default" aria-label="Edit Tag Type" onclick="editType('{{:name}}')" style="margin-right:8px;">
+    <button type="button" class="btn btn-default" aria-label="Edit Tag Type" onclick="editType('{{:_id}}')" style="margin-right:8px;">
       <span class="glyphicon glyphicon-open" aria-hidden="true"></span> Edit Type
     </button>
-    <button type="button" class="btn btn-default" aria-label="Edit Tags" onclick="editTags('{{:name}}')" style="margin-right:8px;">
+    <button type="button" class="btn btn-default" aria-label="Edit Tags" onclick="editTags('{{:_id}}')" style="margin-right:8px;">
       <span class="glyphicon glyphicon-edit" aria-hidden="true" style="color:blue"></span> Edit Tags
     </button>
-    <button type="button" class="btn btn-default" aria-label="Delete Tag Type" onclick="removeType('{{:name}}')" style="margin-right:8px;">
+    <button type="button" class="btn btn-default" aria-label="Delete Tag Type" onclick="removeType('{{:_id}}')" style="margin-right:8px;">
       <span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></span> Delete Type
     </button>
   </div>
@@ -29,24 +29,24 @@
 <script type="text/x-jsrender" id="template-edit-type">
   <div class="form-group">
     <label for="name">Name:</label>
-    <input type="text" class="form-control" id="{{:name}}.name" name="name" value="{{:name}}">
+    <input type="text" class="form-control" id="{{:_id}}.name" name="name" value="{{:name}}">
   </div>
   <div class="form-group">
     <label for="defaultprice">Default Price:</label>
-    <input type="number" class="form-control" id="{{:name}}.defaultprice" name="defaultprice" value="{{:defaultprice}}">
+    <input type="number" class="form-control" id="{{:_id}}.defaultprice" name="defaultprice" value="{{:defaultprice}}">
   </div>
   <div class="form-group">
     <label for="pricedescription">Price Description:</label>
-    <input type="text" class="form-control" id="{{:name}}.pricedescription" name="pricedescription" value="{{:pricedescription}}">
+    <input type="text" class="form-control" id="{{:_id}}.pricedescription" name="pricedescription" value="{{:pricedescription}}">
   </div>
   <div class="row">
     <div class="col-md-2"></div>
-    <button type="button" class="btn btn-default col-md-2" aria-label="Save Tag Type" onclick="saveType('{{:name}}')" style="margin-right:8px;">
+    <button type="button" class="btn btn-default col-md-2" aria-label="Save Tag Type" onclick="saveType('{{:_id}}')" style="margin-right:8px;">
       <span class="glyphicon glyphicon-save" aria-hidden="true" style="color:blue"></span> Save
     </button>
     <div class="col-md-2"></div>
     <div class="col-md-2"></div>
-    <button type="button" class="btn btn-default col-md-2" aria-label="Cancel Tag Type" onclick="cancelType('{{:name}}')" style="margin-right:8px;">
+    <button type="button" class="btn btn-default col-md-2" aria-label="Cancel Tag Type" onclick="cancelType('{{:_id}}')" style="margin-right:8px;">
       <span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="color:red"></span> Cancel
     </button>
   </div>
@@ -81,18 +81,18 @@
     });
   }
   
-  function removeType(name){
+  function removeType(id){
   var resp = confirm('Are you sure you want to delete ' + name);
     if (resp) {
       $.ajax({
         url : window.location.href,
         type: "DELETE",
         contentType: "application/json; charset=utf-8",
-        data : JSON.stringify({"name": name}),
-        success: function(name)
+        data : JSON.stringify({"_id": id}),
+        success: function(_id)
         {
-          $("[id=\'" + name + "\']").remove();
-          typesList = _.without(typesList, _.findWhere(typesList, {name: name}));
+          $("#"+_id).remove();
+          typesList = _.without(typesList, _.findWhere(typesList, {_id: id}));
         },
         error: function (err)
         {
@@ -102,40 +102,41 @@
     }
   }
   
-  function editType(name) {
+  function editType(id) {
     var template = $.templates("#template-edit-type");
-    var htmlOutput = template.render(_.findWhere(typesList, {name: name}));
-    $("[id=\'" + name + "\']").html(htmlOutput);
+    var htmlOutput = template.render(_.findWhere(typesList, {_id: id}));
+    $("#"+id).html(htmlOutput);
   }
   
-  function cancelType(name) {
+  function cancelType(id) {
     var template = $.templates("#template-type");
-    var htmlOutput = template.render(_.findWhere(typesList, {name: name}));
-    $("[id=\'" + name + "\']").replaceWith(htmlOutput);
+    var htmlOutput = template.render(_.findWhere(typesList, {_id: id}));
+    $("#"+id).replaceWith(htmlOutput);
   }
   
-  function saveType(name) {
-    var newType = {name: $("[id=\'" + name + ".name\']").val(), defaultprice: $("[id=\'" + name + ".defaultprice\']").val(), pricedescription: $("[id=\'" + name + ".pricedescription\']").val()};
-        $.ajax({
-        url : window.location.href,
-        type: "PUT",
-        contentType: "application/json; charset=utf-8",
-        data : JSON.stringify({newType: newType, oldName: name}),
-        success: function(type)
-        {
-          type = JSON.parse(type);
-          var match = _.where(typesList , {name: name});
-          match[0].name = type.name;
-          match[0].defaultprice = type.defaultprice;
-          match[0].pricedescription = type.pricedescription;
-          var template = $.templates("#template-type");
-          var htmlOutput = template.render(type);
-          $("[id=\'" + name + "\']").replaceWith(htmlOutput);
-        },
-        error: function (err)
-        {
-          console.log(err);
-        }
-      });
+  function saveType(id) {
+    var newType = {_id: id, name: $("#" + id + "\\.name").val(), defaultprice: $("#" + id + "\\.defaultprice").val(), pricedescription: $("#" + id + "\\.pricedescription").val()};
+    console.log(JSON.stringify(newType));
+    $.ajax({
+      url : window.location.href,
+      type: "PUT",
+      contentType: "application/json; charset=utf-8",
+      data : JSON.stringify(newType),
+      success: function(type)
+      {
+        type = JSON.parse(type);
+        var match = _.where(typesList , {_id: id});
+        match[0].name = type.name;
+        match[0].defaultprice = type.defaultprice;
+        match[0].pricedescription = type.pricedescription;
+        var template = $.templates("#template-type");
+        var htmlOutput = template.render(type);
+        $("#"+id).replaceWith(htmlOutput);
+      },
+        error: function (err)
+      {
+        console.log(err);
+      }
+    });
   }
 </script>

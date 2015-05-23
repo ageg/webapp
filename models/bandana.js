@@ -13,7 +13,7 @@ var TagSchema = new Schema({
 });
 
 var TagTypeSchema = new Schema({
-  name : { type: String, unique: true },
+  name : String,
   defaultprice : Number,
   pricedescription: String,
   tags : [TagSchema]
