@@ -7,8 +7,8 @@ var UserSchema = new Schema({
 	nom: String,
 	email: String,
 	concentration: String,
-    promo: Number,
-    rights: Number
+  promo: Number,
+  rights: Number
 });
 
 UserSchema.methods = {
