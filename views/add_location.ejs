@@ -1,35 +1,67 @@
-﻿<form role="form" action="/add_location" method="post">
+﻿<form role="form" onsubmit="return validateForm()"  method="post">
   <div class="form-group">
     <label for="emprunt_for">Nom du groupe (facultatif):</label>
-    <input type="text" class="form-control" id="emprunt_for" name="emprunt_for">
+    <input type="text" class="form-control" id="emprunt_for" name="emprunt_for"/>
   </div>
   <div class="form-group">
     <label for="raison">Raison de l'emprunt:</label>
-    <input type="text" class="form-control" id="raison" name="raison">
+    <input type="text" class="form-control" id="raison" name="raison"/>
   </div>
   <div class="form-group">
     <label for="date_emprunt">Date de l'emprunt:</label>
-    <input type="date" class="form-control" id="date_emprunt" name="date_emprunt">
-  </div>
-  <div class="form-group">
-    <label for="date_retour">Date de retour:</label>
-    <input type="date" class="form-control" id="date_retour" name="date_retour">
+    <div class="row">
+      <div class ="col-md-5">
+        <div class="row">
+          <div class="col-md-1">
+            <label for="du">Du:</label>
+          </div>
+          <div class="col-md-5">
+            <input type="date" class="form-control" id="start_date" name="start_date" />
+          </div>
+          <div class="col-md-1">
+            <label for="du">au:</label>
+          </div>
+          <div class="col-md-5">
+            <input type="date" class="form-control" id="end_date" name="end_date" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <label for="AllDay" >Toute la journée:</label>
+        <input type="checkbox" id="allDay" onchange="all_day()"/>
+      </div>
+      <div class="col-md-5">
+        <div class="col-md-1">
+          <label for="du">De:</label>
+        </div>
+        <div class="col-md-5">
+          <input type="time" class="form-control" id="startTime" name="start_time" value="00:00"/>
+          </div>
+        <div class="col-md-1">
+          <label for="du">à:</label>
+        </div>
+        <div class="col-md-5">
+          <input type="time" class="form-control" id="endTime" name="end_time" value="00:00"/>
+        </div> 
+      </div>
+    </div>
+
   </div>
   <div class="form-group">
     <label for="item">Objets loués:</label>
     <div id="objet_loue" style="padding-bottom:5px"></div>
-    <div class="row">
-      <div class="col-md-10">
-            <select class="form-control" id="item">
-              <% for(var i=0; i < data.length; i++) {%>
-              <option id="item<%-i%>"><%- data[i].name %></option>
-              <% } %>
-      </select>
+      <div class="row">
+        <div class="col-md-10">
+          <select class="form-control" id="item">
+            <% for(var i=0; i < data.length; i++) {%>
+              <option id="item_<%-i%>"><%- data[i].name %></option>
+            <% } %>
+           </select>
+        </div>
+        <div class="col-md-2">
+              <button type="button" id="button_item" class="btn btn-default" onClick="add_item()">Ajouter objet</button>
+        </div>
       </div>
-      <div class="col-md-2">
-            <button type="button" id="button_item" class="btn btn-default" onClick="add_item()">Ajouter objet</button>
-      </div>
-    </div>
     </div>
   <button type="submit" class="btn btn-default">Continuer</button>
 </form>
@@ -40,68 +72,118 @@
   var div = document.getElementById('objet_loue');
   var item = document.getElementById("item");
   var id_item = item.options[item.selectedIndex].id;
-  
+
   if(id_item != ""){
-    var obj = document.createElement("input");
-    obj.setAttribute('type',"text");
-    obj.setAttribute('class',"form-control");
-    obj.setAttribute('value', item.value);
-    obj.setAttribute('readonly', 'readonly')
-    obj.setAttribute('id', id_item+"-label");
-    
-    var identifier = document.createElement("INPUT");
-    identifier.setAttribute("type", "hidden");
-    identifier.setAttribute('name', "item[]");
-    identifier.setAttribute('value', id_item);
-    
-    item.remove(item.selectedIndex);
-    
-    var button = document.createElement("button");
-    button.setAttribute('type',"button");
-    button.setAttribute('class',"btn btn-default");
-    button.setAttribute('id', id_item+"-button");
-    button.setAttribute('onClick', "remove_item(this.id)");
-    button.innerHTML = "Retirer objet";
-    
-    rowDiv = document.createElement("div");
-    rowDiv.setAttribute('class',"row");
-    rowDiv.setAttribute('id', id_item+"-div");
-    rowDiv.setAttribute('style', "margin-top:5px");
-    
-    labelDiv = document.createElement("div");
-    labelDiv.setAttribute('class',"col-md-10");
+  var obj = document.createElement("input");
+  obj.setAttribute('type',"text");
+  obj.setAttribute('class',"form-control");
+  obj.setAttribute('value', item.value);
+  obj.setAttribute('readonly', 'readonly')
+  obj.setAttribute('id', id_item+"-label");
 
-    buttonDiv = document.createElement("div");
-    buttonDiv.setAttribute('class',"col-md-2");
+  var identifier = document.createElement("INPUT");
+  identifier.setAttribute("type", "hidden");
+  identifier.setAttribute('name', "item[]");
+  identifier.setAttribute('value', id_item);
 
-    labelDiv.appendChild(obj);
-    buttonDiv.appendChild(button);
-    rowDiv.appendChild(labelDiv);
-    rowDiv.appendChild(buttonDiv);
-    rowDiv.appendChild(identifier);
-    div.appendChild(rowDiv);
-    }
+  item.remove(item.selectedIndex);
+
+  var button = document.createElement("button");
+  button.setAttribute('type',"button");
+  button.setAttribute('class',"btn btn-default");
+  button.setAttribute('id', id_item+"-button");
+  button.setAttribute('onClick', "remove_item(this.id)");
+  button.innerHTML = "Retirer objet";
+
+  rowDiv = document.createElement("div");
+  rowDiv.setAttribute('class',"row");
+  rowDiv.setAttribute('id', id_item+"-div");
+  rowDiv.setAttribute('style', "margin-top:5px");
+
+  labelDiv = document.createElement("div");
+  labelDiv.setAttribute('class',"col-md-10");
+
+  buttonDiv = document.createElement("div");
+  buttonDiv.setAttribute('class',"col-md-2");
+
+  labelDiv.appendChild(obj);
+  buttonDiv.appendChild(button);
+  rowDiv.appendChild(labelDiv);
+  rowDiv.appendChild(buttonDiv);
+  rowDiv.appendChild(identifier);
+  div.appendChild(rowDiv);
+  }
   }
   function remove_item(id_button)
   {
-    var id_item = id_button.split("-")[0];
-    var id_label = id_item + "-label";
-    var id_div = id_item + "-div";
+  var id_item = id_button.split("-")[0];
+  var id_label = id_item + "-label";
+  var id_div = id_item + "-div";
 
-    var item = document.getElementById(id_label);
-    var divItem = document.getElementById(id_div);
-    
-    var dropDown = document.getElementById("item");
-        
-    var option = document.createElement("option");
-    option.setAttribute('id', id_item);
-    option.innerHTML = item.value;
-    
-    dropDown.appendChild(option);
+  var item = document.getElementById(id_label);
+  var divItem = document.getElementById(id_div);
 
-    divItem.remove();
+  var dropDown = document.getElementById("item");
+
+  var option = document.createElement("option");
+  option.setAttribute('id', id_item);
+  option.innerHTML = item.value;
+
+  dropDown.appendChild(option);
+
+  divItem.remove();
 
   }
+  function all_day()
+  {
+  var checkBox = document.getElementById("allDay");
+  var endHour = document.getElementById("endTime");
+  var startHour = document.getElementById("startTime");
+
+  if(checkBox.checked == true){
+  endHour.readOnly = true;
+  startHour.readOnly = true;
+  endHour.value = "00:00";
+  startHour.value = "00:00";
+  }
+  else{
+  endHour.readOnly = false;
+  startHour.readOnly = false;
+  }
+
+  }
+
+  Date.prototype.toDateInputValue = (function() {
+  var local = new Date(this);
+  local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+  return local.toJSON().slice(0,10);
+  });
+
+  function validateForm()
+  {
+  var divItems = document.getElementById('objet_loue');
+  var raison = document.getElementById('raison');
+
+  console.log(raison.value);
+
+  if (divItems.children.length == 0)
+  {
+  alert("Veuillez au moins ajouter un item à la liste");
+  return false;
+  }
+  else if (raison.value == "")
+  {
+  alert("S'il vous plait, inscriver une raison pour l'emprunt");
+  return false;
+  }
+
+  }
+
+  document.getElementById('start_date').value = new Date().toDateInputValue();
+  document.getElementById('end_date').value = new Date().toDateInputValue();
+  document.getElementById('start_date').min = new Date().toDateInputValue();
+  document.getElementById('end_date').min = new Date().toDateInputValue();
+
 
 </script>  
 
