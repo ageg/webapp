@@ -73,6 +73,7 @@ app.post('/addUser', add_user);
 app.use('/', require('./routes/refunds.js'));
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
+app.use('/', require('./routes/bandana.js'));
 
 // Start the server after the db connection
 var db = mongoose.connection;

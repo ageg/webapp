@@ -15,9 +15,10 @@
       </div>
       <div class="col-md-6">
         <select class="form-control" name="<%= user.cip %>.rights">
-          <option value="0" <% if(user.rights == 0) { %> selected <% } %> >None</option>
-          <option value="1" <% if(user.rights == 1) { %> selected <% } %>>Permie</option>
-          <option value="2" <% if(user.rights == 2) { %> selected <% } %>>Admin</option>
+          <option value="<%= adminRights.NONE %>" <% if(user.rights == adminRights.NONE) { %> selected <% } %>>None</option>
+          <option value="<%= adminRights.BANDANA %>" <% if(user.rights == adminRights.BANDANA) { %> selected <% } %>>Directeur Bandana</option>
+          <option value="<%= adminRights.PERMIE %>" <% if(user.rights == adminRights.PERMIE ) { %> selected <% } %>>Permie</option>
+          <option value="<%= adminRights.ADMIN %>" <% if(user.rights == adminRights.ADMIN ) { %> selected <% } %>>Admin</option>
         </select>
       </div>
     </div>
