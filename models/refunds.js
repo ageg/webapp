@@ -28,5 +28,7 @@ var RequestBillSchema = new Schema({
   value: Number
 });
 
+// TODO: Archives
+
 mongoose.model('Request', RequestSchema);
 mongoose.model('Bill', RequestBillSchema);

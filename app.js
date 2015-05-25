@@ -1,10 +1,12 @@
+var auth = require('./modules/auth'); // Module use for all authentification on server
+var bodyParser = require('body-parser');
 var config = require('./config/config');
+var ejsLayouts = require("express-ejs-layouts");
 var express = require('express');
 var mongoose = require("mongoose");
-var bodyParser = require('body-parser');
 var https = require('https'); // use HTTPS Server
-var ejsLayouts = require("express-ejs-layouts");
-var auth = require('./modules/auth'); // Module use for all authentification on server
+var multer = require('multer'); // use Multer for file uploads
+var url = require('url'); // URL parsing library
 var User = mongoose.model('User');
 
 var app = express();
@@ -32,6 +34,22 @@ app.use(function (req, res, next) {
   res.locals.adminRights = auth.adminRights;
   next();
 });
+
+// Middleware to handle file uploads
+/*app.use(multer({
+  dest: config.refundoptions.uploaddir,
+  rename: function (fieldname, filename) {
+    return filename.replace(/\W+/g, '-').toLowerCase() + Date.now()
+  },
+  onFileUploadStart: function (file, req, res) {
+    console.log(file.originalname + ' is starting ...')
+  },
+  onFileUploadComplete: function (file, req, res) {
+    console.log(file.fieldname + ' uploaded to  ' + file.path)
+    done=true;
+    console.log(url.parse(req.url).pathname);
+  }
+}));*/
 
 // Routes
 var index = require("./routes/index.js");

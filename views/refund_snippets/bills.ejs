@@ -1,20 +1,20 @@
 <fieldset name="bill<%= billNo %>">
 	<legend>Facture #&nbsp;<%= billNo %></legend>
-	<input type="hidden" class="form-control" id="bill_id" name="bill_id">
+	<input type="hidden" class="form-control" id="bill_id<=% billNo %>" name="bill_id<=% billNo %>" value="<%= billNo %>">
 	<div class="form-group">
-		<label for='supplier'>Fournisseur</label>
-		<input class="form-control" type='text' name='supplier' required>
+		<label for='supplier<%= billNo %>'>Fournisseur</label>
+		<input class="form-control" id='supplier<%=  billNo %>' name='supplier<%=  billNo %>' type='text' required>
 	</div>
 	<div class="form-group">
-		<label for='value'>Montant</label>
-		<input class="form-control" type='number' name='value' step='0.01' required>
+		<label for='value<%= billNo %>'>Montant</label>
+		<input class="form-control" id="value<%= billNo %>" type='number' name='value<%= billNo %>' step='0.01' required>
 	</div>
 	<div class="form-group">
-		<label for='bill'>Facture</label>
-		<p>TODO: UPLOAD ICI</p>
+		<label for='bill<%= billNo %>'>Facture</label>
+		<input class="form-control" id="bill<%= billNo %>" name="bill<%= billNo %>" type="file" onchange="upload(this.id);">
 	</div>
 	<div class="form-group">
-		<label for='note'>Notes</label>
-		<textarea class="form-control" name="note" placeholder="Notes sur la facture" rows="4"></textarea>
+		<label for='note<%= billNo %>'>Notes</label>
+		<textarea class="form-control" id="note<%= billNo %>" name="note<%= billNo %>" placeholder="Notes sur la facture" rows="4"></textarea>
 	</div>
 </fieldset>

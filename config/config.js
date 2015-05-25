@@ -1,6 +1,10 @@
 var config = {};
 var fs = require('fs');
 
+config.refundoptions = {
+  uploaddir: './uploads/'
+};
+
 config.ssloptions = {
   key: fs.readFileSync('./config/server.key'),
   cert: fs.readFileSync('./config/server.crt'),
