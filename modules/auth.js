@@ -34,7 +34,7 @@ adminRights = {
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
-  service_url : 'https://localhost:' + ('8443')
+  service_url : 'https://localhost:8443'
 });
 
 setSessionUserInfo = function (req, callback) {

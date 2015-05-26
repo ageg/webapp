@@ -23,7 +23,7 @@
 	</fieldset>
 	<fieldset>
 		<legend>Demande</legend>
-		<input type="hidden" class="form-control" id="refund_id" name="refund_id" value="<%= reqInfo.ID %>" required>
+		<input type="hidden" class="form-control" id="refund_id" name="refund_id" value="<%= reqInfo._id %>" required>
 		<input type="hidden" class="form-control" id="bill_count" name="bill_count" value="<%= reqInfo.billCount %>">
 		<div class="form-group">
 			<label for="reference">Référence</label>
@@ -35,7 +35,7 @@
 		</div>
 		<div class="form-group">
 			<label for="total">Total</label>
-			<output id="totalOut" name="totalOut" for="<%= formulas.fieldString %>"><%= reqInfo.total %>&nbsp;$</output>
+			<output id="totalOut" name="totalOut" for="<%= formulas.fieldString %>"><%= reqInfo.total %></output>&nbsp;$
 			<input type="hidden" class="form-control" id="total" name="total" value="<%= reqInfo.total %>">
 		</div>
 		<div class="form-group">

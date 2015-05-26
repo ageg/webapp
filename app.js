@@ -35,22 +35,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Middleware to handle file uploads
-/*app.use(multer({
-  dest: config.refundoptions.uploaddir,
-  rename: function (fieldname, filename) {
-    return filename.replace(/\W+/g, '-').toLowerCase() + Date.now()
-  },
-  onFileUploadStart: function (file, req, res) {
-    console.log(file.originalname + ' is starting ...')
-  },
-  onFileUploadComplete: function (file, req, res) {
-    console.log(file.fieldname + ' uploaded to  ' + file.path)
-    done=true;
-    console.log(url.parse(req.url).pathname);
-  }
-}));*/
-
 // Routes
 var index = require("./routes/index.js");
 app.get('/', index);

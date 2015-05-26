@@ -11,7 +11,8 @@ var RequestSchema = new Schema({
   category: String,
   billCount: Number,
   total: Number,
-  notes: String
+  notes: String,
+  status: Number
   // TODO: Add submittedDate
 });
 
@@ -28,7 +29,7 @@ var RequestBillSchema = new Schema({
   value: Number
 });
 
-// TODO: Archives
+// TODO: Archives?
 
 mongoose.model('Request', RequestSchema);
 mongoose.model('Bill', RequestBillSchema);
