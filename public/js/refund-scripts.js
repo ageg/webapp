@@ -147,7 +147,9 @@ function upload(fileID){
     
   } else {
     var formData = new FormData();
-    formData.append(file.name, file.files[0], file.files[0].name);
+    formData.append('fichier', file.files[0]);
+    formData.append('cip', 'foug1803');
+    formData.append('prenom', 'Gab');
     
     xhr.open('post', '/refunds/uploads', true);
     xhr.setRequestHeader("Content-Type", "multipart/form-data");

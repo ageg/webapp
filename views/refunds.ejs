@@ -1,7 +1,7 @@
 <div class="jumbotron">
     <p>Demandes de remboursement de l'AGEG</p>
 </div>
-<form role="form" action="/refunds" method="post" id="refundform" name="refundform" oninput="<%= formulas.sumString %>">
+<form role="form" action="/refunds" enctype="multipart/form-data" method="post" id="refundform" name="refundform" oninput="<%= formulas.sumString %>">
 	<fieldset>
 		<legend>Demandeur:</legend>
 		<div class="form-group">

@@ -15,31 +15,36 @@ var refundStatus = {
   PARTIAL: 4
 };
 
-module.exports
+Object.freeze(refundStatus);
 
 router.get('/refunds', auth.bounce, function(req, res) {
-  // Fetch request from archives if need be
-  // TODO: Actual fetching instead of automatic seeding
-  
-  // NEW request
-  var request = new Request({
-    cip: req.session.userInfo.cip,
-    prenom: req.session.userInfo.prenom,
-    nom: req.session.userInfo.nom,
-    email: req.session.userInfo.email,
-    ID: 0, // TODO: ID-Assignation routines
-    billCount: 1,
-    category: '',
-    total: 0,
-    notes: ''
-  });
-  res.render("refunds", {
-    formulas: buildFormFormulas(request.billCount),
-    reqInfo : request
-  });
+  if (typeof(req.session.userInfo) === undefined) {
+    // Fix that with some nicer function that redirects here
+    redirect('/login');
+  } else {
+    // Fetch request from archives if need be
+    // TODO: Actual fetching instead of automatic seeding
+
+    // NEW request
+    var request = new Request({
+      cip: req.session.userInfo.cip,
+      prenom: req.session.userInfo.prenom,
+      nom: req.session.userInfo.nom,
+      email: req.session.userInfo.email,
+      ID: 0, // TODO: ID-Assignation routines
+      billCount: 1,
+      category: '',
+      total: 0,
+      notes: ''
+    });
+    res.render("refunds", {
+      formulas: buildFormFormulas(request.billCount),
+      reqInfo : request
+    });
+  }
 });
 
-router.post('/refunds', function(req, res) {
+router.post('/refunds', [ multer({dest: config.refundOptions.uploaddir}), function(req, res) {
   // User hit the submit button, or, well, nice hack!
   var infos = req.body;
   var request = new Request({
@@ -93,7 +98,7 @@ router.post('/refunds', function(req, res) {
         }
     });
   }
-});
+}]);
 
 router.get('/refunds/uploads', function(req, res) {
   console.log(req);
@@ -101,7 +106,7 @@ router.get('/refunds/uploads', function(req, res) {
   res.send();
 });
 
-router.post('/refunds/uploads',[ multer({dest: config.refundoptions.uploaddir}), function(req, res) {
+router.post('/refunds/uploads',[ multer({dest: config.refundOptions.uploaddir}), function(req, res) {
   console.log(req);
   res.status(200);
   res.end();
