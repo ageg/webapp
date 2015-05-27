@@ -110,7 +110,7 @@ function saveRequest(billCount, offset) {
   var supplier = '';
   var value = '';
   var file = '';
-  var jssha = '';
+  var jssha = new jsSHA();
   var md = '';
   for (var i = 1; i <= (billCount + offset); i++) {
     // Collect info
@@ -122,7 +122,7 @@ function saveRequest(billCount, offset) {
     note = (typeof note === 'undefined') ? '' : note;
     supplier = (typeof supplier === 'undefined') ? '' : supplier;
     value = (typeof value === 'undefined') ? 0 : value;
-    md = (typeof file.files === 'undefined') ? '' : new jsSHA(file.files[0]).getHash("SHA-512","HEX");
+    md = (typeof file.files === 'undefined') ? '' : jssha(file.files[0]).getHash("SHA-512","HEX");
     //md = (typeof file.files === 'undefined') ? '' : md.update(file.files[0]).digest().toHex();// Build the file hash
     // Build JSON object
     bill = {
@@ -166,15 +166,21 @@ function upload(fileID){
       file: md
     };
     
+    var reader = new FileReader();
+    var fileBuffer = reader.readAsBinaryString(file.files[0]);
     
-     xhr.open('put', '/refunds/uploads', true);
-     xhr.setRequestHeader("X-File-Name", file.files[0].name);
-     xhr.setRequestHeader("X-File-Size", file.files[0].size);
-     //xhr.setRequestHeader("Content-Typ*e", "application/json");
-     xhr.send(file.files[0]);
-    /*xhr.open('post', '/refunds/uploads', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify(test));*/  /* Send to server */
+    reader.onloadend = function () {
+      var jssha = new jsSHA(reader.result,"BYTES");
+      md = jssha.getHash("SHA-512","HEX");
+      file.innerHTML = md;
+      console.log("SHA512: " + (md));
+      
+      xhr.open('put', '/refunds/uploads', true);
+      xhr.setRequestHeader("X-File-Name", file.files[0].name);
+      xhr.setRequestHeader("X-File-Size", file.files[0].size);
+      xhr.setRequestHeader("X-File-SHA512SUM", md);
+      xhr.send(file.files[0]);
+    }
   }
 }
 

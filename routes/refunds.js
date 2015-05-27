@@ -139,8 +139,8 @@ router.put('/refunds/uploads', function(req,res) {
    * Using HTTP Method PUT to upload the file, to keep POST clean
    * (PUT is also OK to reply with a 201)
    **/
+  
   if (config.devOptions.verboseDebug) {
-    console.log('PUT Method selected');
     console.log(req.headers);
   }
   
@@ -149,8 +149,8 @@ router.put('/refunds/uploads', function(req,res) {
     return;
   }
   
-  var filename = req.headers['x-file-name'];
-  if (!filename) {
+  var fileName = req.headers['x-file-name'];
+  if (!fileName) {
     res.status(400);
     res.send(JSON.stringify({error: "No name specified."}));
     return;
@@ -163,7 +163,7 @@ router.put('/refunds/uploads', function(req,res) {
   }
   
   // TODO: Create renamed file
-  var filePath = config.refundOptions.uploadDir+'/'+filename;
+  var filePath = config.refundOptions.uploadDir+'/'+buildUploadedFileName(req.session.userInfo, fileName);
   var file = fs.createWriteStream(filePath, {
     flags: 'w',
     encoding: 'binary',
@@ -175,20 +175,29 @@ router.put('/refunds/uploads', function(req,res) {
   req.on('data', function(chunk) {
     file.write(chunk);
     hash.write(chunk);
-    if (config.devOptions.verboseDebug) {
-      console.log(bytesUploaded += chunk.length);
-    }
     // TODO: measure elapsed time to help ward off attacks?
   });
   
   req.on('end', function() {
     file.end();
     hash.end();
-    res.status(201); // Reply the file was created!
-    res.send(JSON.stringify({
-      fileName: filePath,
-      fileHash: hash.read()
-    }));
+    var md = hash.read();
+    //console.log("SHA512SUM: "+md);
+    if (md.toLowerCase().localeCompare(req.headers['x-file-sha512sum'].toLowerCase()) === 0) {
+      res.status(201); // Reply the file was created!
+      res.send(JSON.stringify({
+        fileName: filePath,
+        fileHash: md
+      }));
+    } else {
+      // Hash compare failed, request reupload
+      res.status(400);
+      res.send(JSON.stringify({
+        failed: true,
+        fileName: fileName,
+        fileHash: md
+      }));
+    }
   });
 });
 
@@ -229,6 +238,19 @@ router.post('/refunds/request/update', function(req, res) {
   }
 });
 
+function buildUploadedFileName(userInfo, fileName) {
+  // TODO: get automatic file ID
+  var newName = getSessionCode()+'-Facture'+'-001-' + userInfo.prenom.charAt(0).toUpperCase() + userInfo.nom.charAt(0).toUpperCase();
+  // Get file extension
+  var pos = fileName.lastIndexOf('.');
+  var ext = '';
+  if (pos > 0) {
+    ext = fileName.slice(pos+1, fileName.length);
+    newName += '.'+ext;
+  }
+  return newName;
+}
+
 function buildFormFormulas(billCount) {
   var out = {
     fieldString: '',
@@ -240,6 +262,35 @@ function buildFormFormulas(billCount) {
   }
   out.sumString += ")*100)/100)";
   return out;
+}
+
+function getSessionCode() {
+  // Returns standardized session code string
+  var now = new Date();
+  var year = now.getFullYear() - 2000;
+  var month = now.getMonth();
+  var str = '';
+  switch(month) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      str = "H"+year;
+      break;
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+      str = "E"+year;
+      break;
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+      str = "A"+year;
+      break;
+  }
+  return str;
 }
 
 /* As per RFC 2324 */
