@@ -8,6 +8,7 @@ var mongoose = require("mongoose");
 var multer = require('multer');
 var Request = mongoose.model('Request');
 var router = express.Router();
+var url = require('url');
 
 var refundStatus = {
   WORK_IN_PROGRESS: 0,
@@ -116,13 +117,22 @@ router.post('/refunds', [ multer({dest: config.refundOptions.uploadDir}), functi
   }
 }]);
 
-router.get('/refunds/uploads', function(req, res) {
+router.get('/refunds/uploads/:fileName', function(req, res) {
   /***
-   * TODO: Reconfigure as static route to access uploaded files
+   * Fake Static Route
+   * Uploads files on demand, or returns a 404
    ***/
-  console.log(req);
-  res.status(200);
-  res.send();
+  var filePath = 'uploads/'+req.params.fileName;
+  fs.exists(filePath, function(exists){
+    if (exists) {
+      // File Exists
+      res.status(200);
+      res.send(fs.readFileSync(filePath));
+    } else {
+      // 404: File Not Found
+      res.sendStatus(404);
+    }
+  });
 });
 
 router.post('/refunds/uploads', function(req, res) {
@@ -182,7 +192,6 @@ router.put('/refunds/uploads', function(req,res) {
     file.end();
     hash.end();
     var md = hash.read();
-    //console.log("SHA512SUM: "+md);
     if (md.toLowerCase().localeCompare(req.headers['x-file-sha512sum'].toLowerCase()) === 0) {
       res.status(201); // Reply the file was created!
       res.send(JSON.stringify({
@@ -197,6 +206,7 @@ router.put('/refunds/uploads', function(req,res) {
         fileName: fileName,
         fileHash: md
       }));
+      // TODO: remove old file
     }
   });
 });
