@@ -1,7 +1,9 @@
 require('../models/refunds.js');
 var auth = require('../modules/auth'); // Module use for all authentification on server
 var config = require('../config/config');
+var crypto = require('crypto');
 var express = require('express');
+var fs = require('fs');
 var mongoose = require("mongoose");
 var multer = require('multer');
 var Request = mongoose.model('Request');
@@ -18,25 +20,39 @@ var refundStatus = {
 Object.freeze(refundStatus);
 
 router.get('/refunds', auth.bounce, function(req, res) {
-  if (typeof(req.session.userInfo) === undefined) {
+  if (typeof(req.session.userInfo) === 'undefined') {
     // Fix that with some nicer function that redirects here
-    redirect('/login');
+    res.redirect('/login');
   } else {
     // Fetch request from archives if need be
     // TODO: Actual fetching instead of automatic seeding
 
     // NEW request
-    var request = new Request({
-      cip: req.session.userInfo.cip,
-      prenom: req.session.userInfo.prenom,
-      nom: req.session.userInfo.nom,
-      email: req.session.userInfo.email,
-      ID: 0, // TODO: ID-Assignation routines
-      billCount: 1,
-      category: '',
-      total: 0,
-      notes: ''
-    });
+    if (config.devOverride) {
+      var request = new Request({
+        cip: 'devo0001',
+        prenom: 'test',
+        nom: 'session',
+        email: 'test@example.com',
+        ID: 0, // TODO: ID-Assignation routines
+        billCount: 1,
+        category: '',
+        total: 0,
+        notes: ''
+      });
+    } else {
+      var request = new Request({
+        cip: req.session.userInfo.cip,
+        prenom: req.session.userInfo.prenom,
+        nom: req.session.userInfo.nom,
+        email: req.session.userInfo.email,
+        ID: 0, // TODO: ID-Assignation routines
+        billCount: 1,
+        category: '',
+        total: 0,
+        notes: ''
+      });
+    }
     res.render("refunds", {
       formulas: buildFormFormulas(request.billCount),
       reqInfo : request
@@ -44,7 +60,7 @@ router.get('/refunds', auth.bounce, function(req, res) {
   }
 });
 
-router.post('/refunds', [ multer({dest: config.refundOptions.uploaddir}), function(req, res) {
+router.post('/refunds', [ multer({dest: config.refundOptions.uploadDir}), function(req, res) {
   // User hit the submit button, or, well, nice hack!
   var infos = req.body;
   var request = new Request({
@@ -101,19 +117,84 @@ router.post('/refunds', [ multer({dest: config.refundOptions.uploaddir}), functi
 }]);
 
 router.get('/refunds/uploads', function(req, res) {
+  /***
+   * TODO: Reconfigure as static route to access uploaded files
+   ***/
   console.log(req);
   res.status(200);
   res.send();
 });
 
-router.post('/refunds/uploads',[ multer({dest: config.refundOptions.uploaddir}), function(req, res) {
-  console.log(req);
+router.post('/refunds/uploads', function(req, res) {
+  /***
+   * TODO: Reconfigure as communication route for the PUT Method
+   ***/
+  console.log(req.body);
   res.status(200);
   res.end();
-}]);
+});
+
+router.put('/refunds/uploads', function(req,res) {
+  /***
+   * Using HTTP Method PUT to upload the file, to keep POST clean
+   * (PUT is also OK to reply with a 201)
+   **/
+  if (config.devOptions.verboseDebug) {
+    console.log('PUT Method selected');
+    console.log(req.headers);
+  }
+  
+  if (typeof req.session.userInfo === 'undefined') {
+    res.sendStatus(401);
+    return;
+  }
+  
+  var filename = req.headers['x-file-name'];
+  if (!filename) {
+    res.status(400);
+    res.send(JSON.stringify({error: "No name specified."}));
+    return;
+  }
+  var size = parseInt(req.headers['content-length'], 10);
+  if (!size || size < 0) {
+    res.status(400);
+    res.send(JSON.stringify({error: "No size specified."}));
+    return;
+  }
+  
+  // TODO: Create renamed file
+  var filePath = config.refundOptions.uploadDir+'/'+filename;
+  var file = fs.createWriteStream(filePath, {
+    flags: 'w',
+    encoding: 'binary',
+    mode: 0644
+  });
+  
+  var hash = crypto.createHash('sha512').setEncoding('hex');
+  
+  req.on('data', function(chunk) {
+    file.write(chunk);
+    hash.write(chunk);
+    if (config.devOptions.verboseDebug) {
+      console.log(bytesUploaded += chunk.length);
+    }
+    // TODO: measure elapsed time to help ward off attacks?
+  });
+  
+  req.on('end', function() {
+    file.end();
+    hash.end();
+    res.status(201); // Reply the file was created!
+    res.send(JSON.stringify({
+      fileName: filePath,
+      fileHash: hash.read()
+    }));
+  });
+});
 
 router.post('/refunds/request/update', function(req, res) {
   var infos = req.body;
+  console.log(infos);
   var request = new Request({
     // TODO: Session checks
     cip: req.session.userInfo.cip,

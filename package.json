@@ -6,9 +6,11 @@
     "express": "^4.12.3",
     "express-ejs-layouts": "^1.1.0",
     "express-session": "^1.11.2",
+    "formidable": "^1.0.17",
     "fs": "^0.0.2",
     "mongoose": "^4.0.1",
     "multer": "^0.1.8",
+    "requirejs": "^2.1.17",
     "underscore": "^1.8.3"
   }
 }

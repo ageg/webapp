@@ -15,11 +15,12 @@ module.exports = serverProtocol;
 
 // To configure development overrides
 config.devOptions = {
-  devOverride: false
+  devOverride: true,
+  verboseDebug: true
 };
 
 config.refundOptions = {
-  uploaddir: './uploads/'
+  uploadDir: './uploads/'
 };
 
 config.serverOptions = {
