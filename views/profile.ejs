@@ -1,0 +1,53 @@
+<form role="form" action="/profile" method="post">
+  <fieldset>
+  <legend>Utilisateur</legend>
+    <div class="form-group">
+      <label for="cip">CIP:</label>
+      <input type="text" class="form-control" id="cip" name="cip" value="<%= userInfo.cip %>" readonly>
+    </div>
+    <div class="form-group">
+      <label for="prenom">Prénom:</label>
+      <input type="text" class="form-control" id="prenom" name="prenom" value="<%= userInfo.prenom%>" required>
+    </div>
+    <div class="form-group">
+      <label for="nom">Nom:</label>
+      <input type="text" class="form-control" id="nom" name="nom" value="<%= userInfo.nom %>" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Adresse courriel:</label>
+      <input type="email" class="form-control" id="email" name="email" value="<%= userInfo.email %>" required>
+    </div>
+    <div class="form-group">
+      <label for="concentration">Concentration:</label>
+      <select class="form-control" id="concentration" name="concentration">
+          <option>Biotechnologique</option>
+          <option>Chimique</option>
+          <option>Civil</option>
+          <option>Électrique</option>
+          <option>Informatique</option>
+          <option>Mécanique</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="promo">Promotion:</label>
+        <select class="form-control" id="promo" name="promo">
+          <option>57</option>
+          <option>58</option>
+          <option>59</option>
+          <option>60</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="phone">Téléphone:</label>
+        <input type="tel" class="form-control" id="phone" name="phone" value="<%= userInfo.phone %>" required>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Services avancés</legend>
+      <div class="form-group">
+        <label for="username">Utilisateur LDAP de l'AGEG:</label>
+        <input type="text" class="form-control" id="username" name="username" datatoggle="tooltip" title="Optionnel, si vous avez un compte personnel sur les serveur de l'AGEG, entrez le ici." value="<%= userInfo.ageguname %>">
+      </div>
+    </fieldset>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>

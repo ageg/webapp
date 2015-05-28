@@ -55,7 +55,9 @@ check = function (req, res, next) {
       if (!obj) {
         res.render("add_user", { cip: cip });
       } else {
-        next();
+        setSessionUserInfo(req, function () {
+          next();
+        });
       }
     });
   } else {

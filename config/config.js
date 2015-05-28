@@ -15,6 +15,13 @@ config.session = {
 	secret: '38Dv60Yi50s0QW5hv6slvRHk4RmYZoqkU0PedB96'
 };
 
+config.standards = {
+  regExes: {
+    name: /([\w-'\ ]+)/
+    phone: /[\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4}/
+  }
+};
+
 config.ONE_YEAR = 31536000000; // seconds
 
 module.exports = config;
