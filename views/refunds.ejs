@@ -44,7 +44,7 @@
 		</div>
 	</fieldset>
 	<% for(var billNo = 1; billNo <= reqInfo.billCount; billNo++){ %>
-    <% include refund_snippets/bills.ejs %>
+    <% include refunds/bills.ejs %>
   <% } %>
 	<hr id="marker">
 	<button type="button" class="btn btn-default" name="add" onClick="addBill()">Ajouter une facture</button>

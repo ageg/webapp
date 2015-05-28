@@ -25,6 +25,28 @@ router.get('/refunds', auth.bounce, function(req, res) {
     // Fix that with some nicer function that redirects here
     res.redirect('/login');
   } else {
+    res.redirect('/refunds/menu');
+  }
+});
+
+router.get('/refunds/menu', auth.bounce, function(req, res) {
+  if (typeof(req.session.userInfo) === 'undefined') {
+    // Fix that with some nicer function that redirects here
+    res.redirect('/login');
+  } else {
+    var list = new Request();
+    list.listAll({'cip': req.session.userInfo.cip}, function (err, entries){
+      console.log(entries);
+    });
+    res.render('refunds/menu');
+  }
+});
+
+router.get('/refunds/request', auth.bounce, function(req, res) {
+  if (typeof(req.session.userInfo) === 'undefined') {
+    // TODO: Fix that with some nicer function that redirects here
+    res.redirect('/login');
+  } else {
     // Fetch request from archives if need be
     // TODO: Actual fetching instead of automatic seeding
 
@@ -61,7 +83,7 @@ router.get('/refunds', auth.bounce, function(req, res) {
   }
 });
 
-router.post('/refunds', [ multer({dest: config.refundOptions.uploadDir}), function(req, res) {
+router.post('/refunds/request', [ multer({dest: config.refundOptions.uploadDir}), function(req, res) {
   // User hit the submit button, or, well, nice hack!
   var infos = req.body;
   var request = new Request({
@@ -122,17 +144,22 @@ router.get('/refunds/uploads/:fileName', function(req, res) {
    * Fake Static Route
    * Uploads files on demand, or returns a 404
    ***/
-  var filePath = 'uploads/'+req.params.fileName;
-  fs.exists(filePath, function(exists){
-    if (exists) {
-      // File Exists
-      res.status(200);
-      res.send(fs.readFileSync(filePath));
-    } else {
-      // 404: File Not Found
-      res.sendStatus(404);
-    }
-  });
+  if (typeof(req.session.userInfo) === 'undefined') {
+    // Unauthenticated user, will not serve the request
+    res.sendStatus(401);
+  } else {
+    var filePath = 'uploads/'+req.params.fileName;
+    fs.exists(filePath, function(exists){
+      if (exists) {
+        // File Exists
+        res.status(200);
+        res.send(fs.readFileSync(filePath));
+      } else {
+        // 404: File Not Found
+        res.sendStatus(404);
+      }
+    });
+  }
 });
 
 router.post('/refunds/uploads', function(req, res) {
@@ -196,15 +223,16 @@ router.put('/refunds/uploads', function(req,res) {
       res.status(201); // Reply the file was created!
       res.send(JSON.stringify({
         fileName: filePath,
-        fileHash: md
+        fileHash: md,
+        success: true
       }));
     } else {
       // Hash compare failed, request reupload
       res.status(400);
       res.send(JSON.stringify({
-        failed: true,
         fileName: fileName,
-        fileHash: md
+        fileHash: md,
+        success: false
       }));
       // TODO: remove old file
     }

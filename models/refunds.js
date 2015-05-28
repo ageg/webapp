@@ -12,14 +12,16 @@ var RequestSchema = new Schema({
   billCount: Number,
   total: Number,
   notes: String,
+  submit_date: Date,
   status: Number
   // TODO: Add submittedDate
 });
 
-/*RequestSchema.methods = {
-  // TODO This!
+RequestSchema.methods = {
+  listAll: function (findObj, callback) {
+    this.find(findObj, callback);
   }
-}*/
+};
 
 var RequestBillSchema = new Schema({
   billID: Number,
