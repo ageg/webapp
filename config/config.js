@@ -17,8 +17,10 @@ config.session = {
 
 config.standards = {
   regExes: {
-    name: /([\w-'\ ]+)/
-    phone: /[\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4}/
+    email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
+    name: /^([\w-'\ ]+)$/i,
+    phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
+    uname: /^((?:\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
   }
 };
 
