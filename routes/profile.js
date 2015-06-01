@@ -7,7 +7,10 @@ var router = express.Router();
 var User = mongoose.model('User');
 
 router.get('/profile', auth.bounce, function(req, res) {
-  res.render('profile', {userInfo: req.session.userInfo});
+  res.render('profile', {
+    userInfo: req.session.userInfo,
+    regExes: config.standards.htmlRegExes
+  });
 });
 
 router.post('/profile', auth.bounce, function(req, res) {
@@ -33,6 +36,14 @@ router.post('/profile', auth.bounce, function(req, res) {
     if (req.session.userInfo.phone.toString().toLocaleLowerCase().localeCompare(infos.phone.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.phone.test(infos.phone)) {
       req.session.userInfo.phone = infos.phone;
     }
+    // Concentration
+    if (req.session.userInfo.concentration.toString().toLocaleLowerCase().localeCompare(infos.concentration.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.concentration.test(infos.concentration)) {
+      req.session.userInfo.concentration = infos.concentration;
+    }
+    // Promotion
+    if (req.session.userInfo.promo.toString().toLocaleLowerCase().localeCompare(infos.promo.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.promo.test(infos.promo)) {
+      req.session.userInfo.promo = infos.promo;
+    }
     // AGEG LDAP Username
     if (typeof(req.session.userInfo.ageguname) === 'undefined') {
       req.session.userInfo.ageguname='';
@@ -45,17 +56,24 @@ router.post('/profile', auth.bounce, function(req, res) {
       nom: req.session.userInfo.nom,
       email: req.session.userInfo.email,
       phone: req.session.userInfo.phone,
+      concentration: req.session.userInfo.concentration,
+      promo: req.session.userInfo.promo,
       ageguname: req.session.userInfo.ageguname
     }}, {new: true}, function (err, doc) {
       // Reload profile Page
       if (err) console.log(err.message);
-      console.log(doc);
-      res.render('profile', {userinfo: req.session.userInfo});
+      res.render('profile', {
+        userinfo: req.session.userInfo,
+        regExes: config.standards.htmlRegExes
+      });
     });
   } else {
     // CIPs doesn't match, someone wants to meddle with somebody else's infos
     res.status(403);
-    res.render('profile', {userInfo: req.session.userInfo});
+    res.render('profile', {
+      userInfo: req.session.userInfo,
+      regExes: config.standards.htmlRegExes
+    });
     // TODO: Fail2Ban?
     console.log('Bounced '+req.session.userInfo.cip);
   }

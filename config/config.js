@@ -17,10 +17,19 @@ config.session = {
 
 config.standards = {
   regExes: {
+    concentration: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
     email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
-    name: /^([\w-'\ ]+)$/i,
+    name: /^((?!\d)[\w-'\ ]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
-    uname: /^((?:\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
+    promo: /^(\d{2,})$/,
+    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
+  },
+  htmlRegExes: {
+    // Same expressions as the regular regExes, but without the enclosing brackets
+    email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
+    name: "^([\\w-'\\ ]+(?\<!\\d))$",
+    phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
+    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})\\w+)$"
   }
 };
 
