@@ -16,7 +16,6 @@
  * See below code for exemple of usage
 */
 
-
 // See https://github.com/kylepixel/cas-authentication 
 var CASAuthentication = require('cas-authentication');
 
@@ -25,36 +24,19 @@ var mongoose = require("mongoose");
 require('../models/user.js');
 var User = mongoose.model('User');
 
-adminRights = {
-  NONE: 0,
-  BANDANA: 1,
-  PERMIE: 2,
-  ADMIN: 3
-}
-
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
   service_url : 'https://localhost:' + ('8443')
 });
 
-setSessionUserInfo = function (req, callback) {
-  var cip = req.session[cas.session_name];
-  User.findOne({ cip: cip }, function (err, obj) {
-    if (obj) {
-      req.session.userInfo = obj;
-    }
-    
-    callback();
-  });
-}
-
-check = function (req, res, next) {
+checkIfUserExist = function (req, res, next) {
   if (!req.session.userInfo) {
     var cip = req.session[cas.session_name];
     User.findOne({ cip: cip }, function (err, obj) {
       if (!obj) {
-        res.render("add_user", { cip: cip });
+        res.render("addUser", { cip: cip });
       } else {
+        req.session.userInfo = obj;
         next();
       }
     });
@@ -65,35 +47,31 @@ check = function (req, res, next) {
 
 allow = function (rights) {
   return function (req, res, next) {
-    var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
-      var found = false;
-      if (obj) {
-        rights.forEach(function (element, index, array) {
-          if (obj.rights == element) {
-            found = true;
-            next();
-          }
-        });
-      }
-      
-      if (!found) {
-        res.status('403');
-        res.send('403: Forbidden');
-      }
+    userRights = req.session.userInfo.rights;
+    var userAllowed = false
+    userRights.forEach(function(userRight) {
+      rights.forEach(function(right) {
+        if (userRight === right) {
+          next();
+          userAllowed = true;
+        }
+      })
     });
+    if (!userAllowed) {
+      res.redirect('/');
+    }
   }
 }
 
-bounce = [cas.bounce, check];
+bounce = [cas.bounce, checkIfUserExist];
 
-allow_bandana = [cas.bounce, check, allow([adminRights.BANDANA, adminRights.PERMIE, adminRights.ADMIN])];
+allow_bandana = [cas.bounce, checkIfUserExist, allow(["bandana", "permie", "admin"])];
 
-allow_permie = [cas.bounce, check, allow([adminRights.PERMIE, adminRights.ADMIN])];
+allow_permie = [cas.bounce, checkIfUserExist, allow(["permie", "admin"])];
 
-allow_admin = [cas.bounce, check, allow([adminRights.ADMIN])];
+allow_admin = [cas.bounce, checkIfUserExist, allow(["admin"])];
 
-block = [cas.block, check];
+block = [cas.block, checkIfUserExist];
 
 module.exports = {
   userNameSession: cas.session_name,
@@ -103,45 +81,7 @@ module.exports = {
   bounce: bounce,
   block: block,
   bounceRedirect: cas.bounce_redirect,
-  adminRights: adminRights,
   allow_permie: allow_permie,
   allow_admin: allow_admin,
-  cas: cas,
-  setSessionUserInfo: setSessionUserInfo
+  cas: cas
 }
-
-/*
- 
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/login', auth.bounce, function (req, res) {
-    res.redirect('/');
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated.
-app.get('/firstLogin', auth.bounceWOCheck, function (req, res) {
-    res.json({ success: true });
-});
-
-//Unauthenticated clients will receive a 401 Unauthorized response instead of
-//the JSON data. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/api', auth.block, function (req, res) {
-    res.json({ success: true });
-});
-
-//An example of accessing the CAS user session variable. This could be used to
-//retrieve your own local user records based on authenticated CAS username.
-app.get('/api/user', auth.block, function (req, res) {
-    res.json({ cas_user: req.session[ auth.userName ] });
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then to the
-//provided "redirectTo" query parameter once authenticated.
-app.get('/authenticate', auth.bounceRedirect);
-
-//This route will de-authenticate the client with the Express server and then
-//redirect the client to the CAS logout page.
-app.get('/logout', auth.logout);
-
-*/

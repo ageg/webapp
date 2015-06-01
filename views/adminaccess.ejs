@@ -1,31 +1,40 @@
-﻿<form role="form" action="/admin/access" method="post">
-	<% if(typeof successMessage != "undefined") { %><h4 style="color:green;"><%= successMessage %></h4> <% } %>
+﻿<div ng-controller="FindCipController">
+  <label for="cip">Recherche par CIP:</label>
   <div class="row">
-    <div class="col-md-6">
-      <label for="cip">CIP</label>
+    <div class="col-sm-10">
+      <input id="cip" class="form-control" ng-model="cip">
     </div>
-    <div class="col-md-6">
-      <label for="rights">Rights</label>
-    </div>
+    <button class="btn btn-default" ng-click="findUser()">Rechercher</button>
+  </div><br/>
+  <p id="pNotFound" class="bg-danger ng-hide">Le cip n'a pas été trouvé</p>
+
+  <div id="userFound" class="ng-hide">
+    <label for="cip">Droits pour {{user.prenom}} {{user.nom}} :</label>
+    <ul class="list-group">
+      <li class="list-group-item" data-ng-repeat="right in user.rights">
+        {{ right }} <a ng-click="deleteRight(right)"><span class="glyphicon glyphicon-remove"></span></a>
+      </li>
+
+      <li class="list-group-item" ng-if="user.rights.length !== rights.length">
+        <div class="row">
+          <div class="col-sm-10">
+            <select class="form-control" id="newRight">
+              <option ng-repeat="right in rights" ng-value="right" ng-if="user.rights.indexOf(right) === -1">{{right}}</option>
+            </select>
+          </div>
+          <button class="btn btn-default" ng-click="addRight()">Ajouter</button>
+        </div>
+      </li>
+    </ul>
   </div>
-	  <% users.forEach(function(user, idx) { %>
-    <div class="row">
-      <div class="col-md-6">
-        <input type="text" class="form-control" name="<%= user.cip %>.cip" value="<%= user.cip %>" readonly>
-      </div>
-      <div class="col-md-6">
-        <select class="form-control" name="<%= user.cip %>.rights">
-          <option value="<%= adminRights.NONE %>" <% if(user.rights == adminRights.NONE) { %> selected <% } %>>None</option>
-          <option value="<%= adminRights.BANDANA %>" <% if(user.rights == adminRights.BANDANA) { %> selected <% } %>>Directeur Bandana</option>
-          <option value="<%= adminRights.PERMIE %>" <% if(user.rights == adminRights.PERMIE ) { %> selected <% } %>>Permie</option>
-          <option value="<%= adminRights.ADMIN %>" <% if(user.rights == adminRights.ADMIN ) { %> selected <% } %>>Admin</option>
-        </select>
-      </div>
-    </div>
-	  <% }) %>
-  <div class="row">
-    <div class="col-md-6" style="padding-top:10px">
-      <button type="submit" class="btn btn-success" onclick="postListFromTable('userTable', '/admin/access')">Submit</button>
-    </div>
-  </div>
-</form>
+</div><br/>
+
+</div>
+  <ul class="list-group">
+  <% users.forEach(function(user) { %>
+    <li class="list-group-item">
+      <%=user.prenom%> <%=user.nom%> <%=user.cip%><br/><%=user.rights%> 
+    </li>
+  <% }) %>
+  </ul>
+</div>

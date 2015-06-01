@@ -29,7 +29,6 @@ app.use(function (req, res, next) {
     res.locals.userInfo = req.session.userInfo;
   }
 
-  res.locals.adminRights = auth.adminRights;
   next();
 });
 
@@ -38,9 +37,7 @@ var index = require("./routes/index.js");
 app.get('/', index);
 
 app.get('/login', auth.bounce, function (req, res) {
-  auth.setSessionUserInfo(req, function() {
-    res.redirect('/');
-  });
+  res.redirect('/');
 });
 
 app.get('/logout', function (req, res) {
@@ -49,8 +46,8 @@ app.get('/logout', function (req, res) {
   res.redirect('/');
 });
 
-var add_user = require("./routes/add_user.js");
-app.post('/addUser', add_user);
+var addUser = require("./routes/addUser.js");
+app.post('/addUser', addUser);
 
 app.use('/', require('./routes/refunds.js'));
 app.use('/', require('./routes/add_location.js'));

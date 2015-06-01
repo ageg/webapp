@@ -3,13 +3,14 @@ var mongoose = require("mongoose");
 var Request = mongoose.model('Request');
 var express = require('express');
 var router = express.Router();
+var auth = require('../modules/auth');
 
-router.get('/refunds', function(req, res) {
+router.get('/refunds', auth.bounce, function(req, res) {
 	// TODO: pick up data from session/Mongo, then seed it to form
 	res.render("refunds");
 });
 
-router.post('/refunds', function(req, res) {
+router.post('/refunds', auth.bounce, function(req, res) {
   var infos = req.body;
   var request = new Request({
     // TODO: Sanity Checks
