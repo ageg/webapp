@@ -58,7 +58,7 @@ allow = function (rights) {
       })
     });
     if (!userAllowed) {
-      res.redirect('/');
+      res.sendStatus(403);
     }
   }
 }

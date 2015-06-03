@@ -6,21 +6,28 @@ myApp.controller('FindCipController', ['$scope', function($scope) {
   });
 
   $scope.findUser = function() {
-    $("#userFound").addClass("ng-hide");
     if ($scope.cip !== undefined) {
-      $.get("findCIP", { cip: $scope.cip }, function(data, status){
-          $scope.rights = data.rights;
-          if (data.user === null) {
-            $("#pNotFound").removeClass("ng-hide");
-          }
-          else
-          {
-            $("#userFound").removeClass("ng-hide");
-            $scope.user = data.user;
-            $scope.$apply();
-          }
-      });
+      $scope.findUserCip($scope.cip);
     }
+  };
+
+
+
+  $scope.findUserCip = function(cip) {
+    $scope.cip = cip;
+    $("#userFound").addClass("ng-hide");
+    $.get("findCIP", { cip: cip }, function(data, status){
+        $scope.rights = data.rights;
+        if (data.user === null) {
+          $("#pNotFound").removeClass("ng-hide");
+        }
+        else
+        {
+          $("#userFound").removeClass("ng-hide");
+          $scope.user = data.user;
+          $scope.$apply();
+        }
+    });
   };
 
   $scope.deleteRight = function(right) {
