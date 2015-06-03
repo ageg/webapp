@@ -1,3 +1,4 @@
+var dept = require('../config/depts.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -7,7 +8,7 @@ var UserSchema = new Schema({
   prenom: String,
   nom: String,
   email: String,
-  concentration: String,
+  concentration: {type: String, enum: dept.list},
   phone: String,
   promo: Number,
   rights: Number

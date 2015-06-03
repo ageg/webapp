@@ -1,6 +1,7 @@
 require('../models/user.js');
 var auth = require("../modules/auth");
 var config = require('../config/config.js');
+var depts = require('../config/depts.js');
 var express = require('express');
 var mongoose = require("mongoose");
 var router = express.Router();
@@ -8,6 +9,7 @@ var User = mongoose.model('User');
 
 router.get('/profile', auth.bounce, function(req, res) {
   res.render('profile', {
+    depts: depts,
     userInfo: req.session.userInfo,
     regExes: config.standards.htmlRegExes
   });
@@ -63,6 +65,7 @@ router.post('/profile', auth.bounce, function(req, res) {
       // Reload profile Page
       if (err) console.log(err.message);
       res.render('profile', {
+        depts: depts,
         userinfo: req.session.userInfo,
         regExes: config.standards.htmlRegExes
       });
@@ -71,6 +74,7 @@ router.post('/profile', auth.bounce, function(req, res) {
     // CIPs doesn't match, someone wants to meddle with somebody else's infos
     res.status(403);
     res.render('profile', {
+      depts: depts,
       userInfo: req.session.userInfo,
       regExes: config.standards.htmlRegExes
     });

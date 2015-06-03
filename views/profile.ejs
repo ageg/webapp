@@ -25,36 +25,13 @@
     <div class="form-group">
       <label for="concentration">Concentration:</label>
       <select class="form-control" id="concentration" name="concentration">
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Biotechnologique') === 0) { %>
-          <option selected>Biotechnologique</option>
-        <% } else { %>
-          <option>Biotechnologique</option>
-        <% } %>
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Chimique') === 0) { %>
-          <option selected>Chimique</option>
-        <% } else { %>
-          <option>Chimique</option>
-        <% } %>
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Civil') === 0) { %>
-          <option selected>Civil</option>
-        <% } else { %>
-          <option>Civil</option>
-        <% } %>
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Électrique') === 0) { %>
-          <option selected>Électrique</option>
-        <% } else { %>
-          <option>Électrique</option>
-        <% } %>
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Informatique') === 0) { %>
-          <option selected>Informatique</option>
-        <% } else { %>
-          <option>Informatique</option>
-        <% } %>
-        <% if(typeof userInfo != 'undefined' && userInfo.concentration.localeCompare('Mécanique') === 0) { %>
-          <option selected>Mécanique</option>
-        <% } else { %>
-          <option>Mécanique</option>
-        <% } %>
+        <% depts.list.forEach(function (dept) { %>
+          <% if(userInfo.concentration.localeCompare(dept) === 0) { %>
+            <option selected><%= dept %></option>
+          <% } else { %>
+            <option><%= dept %></option>
+          <% } %>
+        <% }) %>
       </select>
     </div>
     <div class="form-group">
