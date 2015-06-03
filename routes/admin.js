@@ -4,39 +4,37 @@ var auth = require('../modules/auth');
 var mongoose = require("mongoose");
 var User = mongoose.model('User');
 var _ = require('underscore');
+var rights = require('../config/rights.js')
 
 router.get('/admin/access', allow_admin, function (req, res) {
-  User.find({}, function (err, dbUsers) {
+  User.find({rights: {$not: {$size: 0}}}, function (err, dbUsers) {
     if (err) throw err;
     
     var sortedUsers = _.sortBy(dbUsers, function (user) {
       return user.cip;
     });
     
-    if (req.query.hasOwnProperty('success')) {
-      res.render('adminaccess', {
-        users: sortedUsers,
-        successMessage: 'The changes were made successfully'
-      });
-    } else {
-      res.render('adminaccess', { users: sortedUsers });
-    }
+    res.render('adminaccess', { users: sortedUsers });
   });
 });
 
-router.post('/admin/access', allow_admin, function (req, res) {
-  var usersAccess = req.body;
-  User.find({}, function (err, users) {
-    users.forEach(function (user) {
-      if (usersAccess[user.cip + ".cip"]) {
-        user.rights = parseInt(usersAccess[user.cip + ".rights"]);
-        user.save(function (err) {
-          if (err) throw err;
-        });
-      }
-    });
-    
-    res.redirect('/admin/access?success');
+router.get('/admin/findCIP', allow_admin, function (req, res) {
+  User.findOne({ cip: req.query.cip }, function (err, obj) {
+    res.json({user: obj, rights: rights.list});
+  });
+});
+
+router.post('/admin/addRight', allow_admin, function (req, res) {
+  User.update({cip: req.body.cip}, {$push: {rights: req.body.right}}, function(err, obj) {
+    if (err) throw err;
+    res.end();
+  });
+});
+
+router.post('/admin/removeRight', allow_admin, function (req, res) {
+  User.update({cip: req.body.cip}, {$pull: {rights: req.body.right}}, function(err, obj) {
+    if (err) throw err;
+    res.end();
   });
 });
 
