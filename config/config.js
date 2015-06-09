@@ -15,6 +15,24 @@ config.session = {
 	secret: '38Dv60Yi50s0QW5hv6slvRHk4RmYZoqkU0PedB96'
 };
 
+config.standards = {
+  regExes: {
+    concentration: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
+    email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
+    name: /^((?!\d)[\w-'\ ]+)$/i,
+    phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
+    promo: /^(\d{2,})$/,
+    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
+  },
+  htmlRegExes: {
+    // Same expressions as the regular regExes, but without the enclosing brackets
+    email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
+    name: "^([\\w-'\\ ]+(?\<!\\d))$",
+    phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
+    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})\\w+)$"
+  }
+};
+
 config.ONE_YEAR = 31536000000; // seconds
 
 module.exports = config;

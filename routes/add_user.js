@@ -15,9 +15,11 @@ module.exports = function(req, res) {
                 prenom: infos.prenom,
                 nom: infos.nom,
                 email: infos.email,
+                phone: infos.phone,
                 concentration: infos.concentration,
                 promo: infos.promo,
-                rights: auth.adminRights.ADMIN
+                rights: auth.adminRights.ADMIN,
+                ageguname: ''
             });
         } else {
             user = new User({
@@ -25,9 +27,11 @@ module.exports = function(req, res) {
                 prenom: infos.prenom,
                 nom: infos.nom,
                 email: infos.email,
+                phone: infos.phone,
                 concentration: infos.concentration,
                 promo: infos.promo,
-                rights: auth.adminRights.NONE
+                rights: auth.adminRights.NONE,
+                ageguname: ''
             });
         }
 

@@ -1,12 +1,15 @@
+var dept = require('../config/depts.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-	cip: String,
-	prenom: String,
-	nom: String,
-	email: String,
-	concentration: String,
+  ageguname: String,
+  cip: String,
+  prenom: String,
+  nom: String,
+  email: String,
+  concentration: {type: String, enum: dept.list},
+  phone: String,
   promo: Number,
   rights: Number
 });
