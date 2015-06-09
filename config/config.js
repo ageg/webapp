@@ -17,18 +17,22 @@ config.session = {
 
 config.standards = {
   regExes: {
-    concentration: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
+    cip: /^([a-z]{4}\d{4})$/i,
+    dept: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
     email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
-    name: /^((?!\d)[\w-'\ ]+)$/i,
+    name: /^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\-\'\ \.]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
     promo: /^(\d{2,})$/,
-    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
+    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})\w+)$/i
   },
   htmlRegExes: {
     // Same expressions as the regular regExes, but without the enclosing brackets
+    cip: "^([a-zA-Z]{4}\\d{4})$",
+    dept: "^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$",
     email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
-    name: "^([\\w-'\\ ]+(?\<!\\d))$",
+    name: "^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\\-'\\ \\.]+)$",
     phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
+    promo: "^(\\d{2,})$",
     uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})\\w+)$"
   }
 };

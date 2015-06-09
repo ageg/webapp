@@ -1,13 +1,15 @@
 require('../models/user.js');
 var auth = require("../modules/auth");
 var config = require('../config/config.js');
-var depts = require('../config/depts.js');
+var depts = require('../models/depts.js');
 var express = require('express');
 var mongoose = require("mongoose");
 var router = express.Router();
 var User = mongoose.model('User');
 
 router.get('/profile', auth.bounce, function(req, res) {
+  console.log('GET: ');
+  console.log(req.session.userInfo);
   res.render('profile', {
     depts: depts,
     userInfo: req.session.userInfo,
@@ -18,60 +20,40 @@ router.get('/profile', auth.bounce, function(req, res) {
 router.post('/profile', auth.bounce, function(req, res) {
   var infos = req.body;
   // Sanity Checks
-  if (req.session.userInfo.cip.toString().toLocaleLowerCase().localeCompare(req.session.userInfo.cip.toString().toLocaleLowerCase()) === 0) {
-    // Prenom
-    if (req.session.userInfo.prenom.toString().toLocaleLowerCase().localeCompare(infos.prenom.toString().toLocaleLowerCase()) !== 0  && config.standards.regExes.name.test(infos.prenom)) {
-      req.session.userInfo.prenom = infos.prenom;
-    }
-    // Nom
-    if (req.session.userInfo.nom.toString().toLocaleLowerCase().localeCompare(infos.nom.toString().toLocaleLowerCase()) !== 0  && config.standards.regExes.name.test(infos.nom)) {
-      req.session.userInfo.nom = infos.nom;
-    }
-    // Email
-    if (req.session.userInfo.email.toString().toLocaleLowerCase().localeCompare(infos.email.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.email.test(infos.email)) {
-      req.session.userInfo.email = infos.email;
-    }
-    // Phone
-    if (typeof(req.session.userInfo.phone) === 'undefined') {
-      req.session.userInfo.phone='';
-    }
-    if (req.session.userInfo.phone.toString().toLocaleLowerCase().localeCompare(infos.phone.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.phone.test(infos.phone)) {
-      req.session.userInfo.phone = infos.phone;
-    }
-    // Concentration
-    if (req.session.userInfo.concentration.toString().toLocaleLowerCase().localeCompare(infos.concentration.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.concentration.test(infos.concentration)) {
-      req.session.userInfo.concentration = infos.concentration;
-    }
-    // Promotion
-    if (req.session.userInfo.promo.toString().toLocaleLowerCase().localeCompare(infos.promo.toString().toLocaleLowerCase()) !== 0 && config.standards.regExes.promo.test(infos.promo)) {
-      req.session.userInfo.promo = infos.promo;
-    }
-    // AGEG LDAP Username
-    if (typeof(req.session.userInfo.ageguname) === 'undefined') {
-      req.session.userInfo.ageguname='';
-    }
-    if (req.session.userInfo.ageguname.toString().toLocaleLowerCase().localeCompare(infos.username.toString().toLocaleLowerCase()) !== 0 && !config.standards.regExes.uname.test(infos.username)) {
-      req.session.userInfo.ageguname = infos.username;
-    }
-    User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {
-      prenom: req.session.userInfo.prenom,
-      nom: req.session.userInfo.nom,
-      email: req.session.userInfo.email,
-      phone: req.session.userInfo.phone,
-      concentration: req.session.userInfo.concentration,
-      promo: req.session.userInfo.promo,
-      ageguname: req.session.userInfo.ageguname
-    }}, {new: true}, function (err, doc) {
+  if (req.session.userInfo.cip.toString().toLocaleLowerCase().localeCompare(infos.cip.toString().toLocaleLowerCase()) === 0) {
+    User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: { // update
+      prenom: infos.prenom,
+      nom: infos.nom,
+      email: infos.email,
+      phone: infos.phone,
+      concentration: infos.dept,
+      promo: infos.promo,
+      ageguname: infos.ageguname
+    }}, { //options
+      new: true, // Returns new values instead of old values
+      runValidators: true // Force entries validation on update
+    }, function (err, doc) { //callback
       // Reload profile Page
-      if (err) console.log(err.message);
+      if (err) {
+        // For future use, maybe, looks fine for now
+        console.log(err);
+      }
+      if (doc) {
+        req.session.userInfo = doc;
+        console.log(req.session.userInfo);
+      } else {
+        console.log('No Doc Returned?!?');
+      }
       res.render('profile', {
         depts: depts,
+        err: err,
         userinfo: req.session.userInfo,
         regExes: config.standards.htmlRegExes
       });
     });
   } else {
     // CIPs doesn't match, someone wants to meddle with somebody else's infos
+    console.log('Bounced: '+req.session.userInfo.cip+' attempting to access '+infos.cip);
     res.status(403);
     res.render('profile', {
       depts: depts,
@@ -79,7 +61,42 @@ router.post('/profile', auth.bounce, function(req, res) {
       regExes: config.standards.htmlRegExes
     });
     // TODO: Fail2Ban?
-    console.log('Bounced '+req.session.userInfo.cip);
+  }
+});
+
+router.post('/profile/ajax', function (req, res) {
+  var infos = req.body;
+  if (typeof(req.session.userInfo) === 'undefined') {
+    // User session timed out
+    // Force user to re-Authenticate
+    res.sendStatus(401);
+  } else {
+    console.log(infos);
+    User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: infos}, { //options
+      new: true, // Returns new values instead of old values
+      runValidators: true // Force entries validation on update
+    }, function (err, doc) { //callback
+      // Reload profile Page
+      if (err) {
+        // For future use, maybe, looks fine for now
+        console.log(err);
+        res.status(207); // Multiple Status, error object enclosed.
+        res.send(JSON.stringify(err.errors));
+      } else {
+        res.sendStatus(200); // OK
+      }
+      if (doc) {
+        delete req.session.userInfo;
+        req.session.userInfo = doc;
+        //Object.keys(req.session.userInfo).forEach(function (key) {
+        //  console.log(key+': '+doc[key]);
+        //  req.session.userInfo[key] = doc[key];
+        //});
+        console.log(req.session.userInfo);
+      } else {
+        console.log('No Doc Returned?!?');
+      }
+    });
   }
 });
 
