@@ -83,4 +83,9 @@ router.post('/profile', auth.bounce, function(req, res) {
   }
 });
 
+router.post('/profiles/challenge', function (req, res) {
+  // Challenge the submitted AGEG LDAP Username and password.
+  
+});
+
 module.exports = router;
