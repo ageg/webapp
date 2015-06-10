@@ -1,4 +1,5 @@
 require('../models/user.js');
+var ageg = require("../modules/ageg");
 var auth = require("../modules/auth");
 var config = require('../config/config.js');
 var depts = require('../config/depts.js');
@@ -83,9 +84,19 @@ router.post('/profile', auth.bounce, function(req, res) {
   }
 });
 
-router.post('/profiles/challenge', function (req, res) {
+router.post('/profile/challenge', function (req, res) {
   // Challenge the submitted AGEG LDAP Username and password.
-  
+  var infos = req.body;
+  console.log(req.body);
+  if (infos.username === undefined || infos.password === undefined) {
+    // Incomplete Request -> Bad Request
+    res.sendStatus(400);
+  } else {
+    ageg.authN(infos.username, infos.password, function (uname, auth) {
+      res.status(200);
+      res.send(JSON.stringify({auth: auth}));
+    });
+  }
 });
 
 module.exports = router;
