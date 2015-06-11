@@ -22,25 +22,20 @@ router.post('/profile', auth.bounce, function(req, res) {
   var infos = req.body;
   // Sanity Checks
   if (req.session.userInfo.cip.toString().toLocaleLowerCase().localeCompare(infos.cip.toString().toLocaleLowerCase()) === 0) {
-    User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: { // update
-      prenom: infos.prenom,
-      nom: infos.nom,
-      email: infos.email,
-      phone: infos.phone,
-      concentration: infos.dept,
-      promo: infos.promo,
-      ageguname: infos.ageguname
-    }}, { //options
+    User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: infos }, {
+      // Options
       new: true, // Returns new values instead of old values
       runValidators: true // Force entries validation on update
     }, function (err, doc) { //callback
-      // Reload profile Page
       if (err) {
         // For future use, maybe, looks fine for now
         console.log(err);
       }
-      if (doc) {
-        req.session.userInfo = doc;
+      if (doc) { // Reload profile Page
+        Object.keys(req.session.userInfo).forEach(function (key) {
+          console.log(key+': '+doc[key]);
+          req.session.userInfo[key] = doc[key];
+        });
         console.log(req.session.userInfo);
       } else {
         console.log('No Doc Returned?!?');
@@ -87,12 +82,10 @@ router.post('/profile/ajax', function (req, res) {
         res.sendStatus(200); // OK
       }
       if (doc) {
-        delete req.session.userInfo;
-        req.session.userInfo = doc;
-        //Object.keys(req.session.userInfo).forEach(function (key) {
-        //  console.log(key+': '+doc[key]);
-        //  req.session.userInfo[key] = doc[key];
-        //});
+        Object.keys(req.session.userInfo).forEach(function (key) {
+          console.log(key+': '+doc[key]);
+          req.session.userInfo[key] = doc[key];
+        });
         console.log(req.session.userInfo);
       } else {
         console.log('No Doc Returned?!?');
@@ -121,7 +114,6 @@ router.post('/profile/challenge', function (req, res) {
           User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {ageguname: uname}}, function (err, doc) {
             // Nothing to do, just 'cause
           });
-          //req.session.userInfo.ageguname = infos.username;
         }
       });
     }
