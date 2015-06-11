@@ -122,7 +122,6 @@ function updateProfile(fieldID) {
 xhr.onreadystatechange = function() 
 {
   if (xhr.readyState == 4) {
-    alert(xhr.status+' '+xhr.statusText);
     // Results handling
     switch (xhr.status) {
       case 200: // 200 OK Do Nothing
@@ -138,6 +137,7 @@ xhr.onreadystatechange = function()
         // TODO: Re-Authentication
       default:
         console.log('Unhandled: '+xhr.status+' '+xhr.statusText);
+        alert(xhr.status+' '+xhr.statusText);
     }
   }
 }

@@ -32,10 +32,7 @@ router.post('/profile', auth.bounce, function(req, res) {
         console.log(err);
       }
       if (doc) { // Reload profile Page
-        Object.keys(req.session.userInfo).forEach(function (key) {
-          console.log(key+': '+doc[key]);
-          req.session.userInfo[key] = doc[key];
-        });
+        cloneObject(doc, req.session.userInfo);
         console.log(req.session.userInfo);
       } else {
         console.log('No Doc Returned?!?');
@@ -74,18 +71,14 @@ router.post('/profile/ajax', function (req, res) {
     }, function (err, doc) { //callback
       // Reload profile Page
       if (err) {
-        // For future use, maybe, looks fine for now
-        console.log(err);
         res.status(207); // Multiple Status, error object enclosed.
         res.send(JSON.stringify(err.errors));
       } else {
         res.sendStatus(200); // OK
       }
       if (doc) {
-        Object.keys(req.session.userInfo).forEach(function (key) {
-          console.log(key+': '+doc[key]);
-          req.session.userInfo[key] = doc[key];
-        });
+        cloneObject(doc, req.session.userInfo);
+        req.session.save(); // Save Session after AJAX interaction
         console.log(req.session.userInfo);
       } else {
         console.log('No Doc Returned?!?');
@@ -110,14 +103,23 @@ router.post('/profile/challenge', function (req, res) {
         res.status(200);
         res.send(JSON.stringify({auth: auth}));
         if (auth) {
-          req.session.userInfo.ageguname = uname;
           User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {ageguname: uname}}, function (err, doc) {
             // Nothing to do, just 'cause
           });
+          req.session.userInfo.ageguname = uname;
+          req.session.save;
         }
       });
     }
   }
 });
+
+function cloneObject(src, dst) {
+  // Clone an object into another, while maintaining the reference valid
+  Object.keys(dst).forEach(function (key) {
+    console.log(key+': '+src[key]);
+    dst[key] = src[key];
+  });
+}
 
 module.exports = router;
