@@ -25,7 +25,8 @@ router.post('/profile', auth.bounce, function(req, res) {
     User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: infos }, {
       // Options
       new: true, // Returns new values instead of old values
-      runValidators: true // Force entries validation on update
+      runValidators: true, // Force entries validation on update
+      upsert: true
     }, function (err, doc) { //callback
       if (err) {
         // For future use, maybe, looks fine for now

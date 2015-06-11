@@ -32,7 +32,7 @@ config.standards = {
     cip: /^([a-z]{4}\d{4})$/i,
     dept: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
     email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
-    name: /^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\-\'\ \.]+)$/i,
+    name: /^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\-\'\ \.]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
     promo: /^(\d{2,})$/,
     uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})(?:ageg\\\w+|\w+\@ageg\.local\.?))$/i
@@ -42,7 +42,7 @@ config.standards = {
     cip: "^([a-zA-Z]{4}\\d{4})$",
     dept: "^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$",
     email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
-    name: "^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\\-'\\ \\.]+)$",
+    name: "^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\\-'\\ \\.]+)$",
     phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
     promo: "^(\\d{2,})$",
     uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})(?:ageg\\\\\\w+|\\w+\@ageg\.local\.?))$"
