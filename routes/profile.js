@@ -87,15 +87,27 @@ router.post('/profile', auth.bounce, function(req, res) {
 router.post('/profile/challenge', function (req, res) {
   // Challenge the submitted AGEG LDAP Username and password.
   var infos = req.body;
-  console.log(req.body);
-  if (infos.username === undefined || infos.password === undefined) {
-    // Incomplete Request -> Bad Request
-    res.sendStatus(400);
+  if (req.session.userInfo === undefined) {
+    // No active Session -> Unauthorized
+    res.sendStatus(401);
   } else {
-    ageg.authN(infos.username, infos.password, function (uname, auth) {
-      res.status(200);
-      res.send(JSON.stringify({auth: auth}));
-    });
+    console.log(req.body);
+    if (infos.username === undefined || infos.password === undefined) {
+      // Incomplete Request -> Bad Request
+      res.sendStatus(400);
+    } else {
+      ageg.authN(infos.username, infos.password, function (uname, auth) {
+        res.status(200);
+        res.send(JSON.stringify({auth: auth}));
+        if (auth) {
+          req.session.userInfo.ageguname = uname;
+          User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {ageguname: uname}}, function (err, doc) {
+            // Nothing to do, just 'cause
+          });
+          //req.session.userInfo.ageguname = infos.username;
+        }
+      });
+    }
   }
 });
 
