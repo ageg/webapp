@@ -1,4 +1,59 @@
 var xhr = new XMLHttpRequest;
+var cxhr = new XMLHttpRequest; // Challenge XMLHttpRequest
+
+function challengeUser() {
+  var username = document.getElementById('username').value;
+  var password = document.getElementById('password').value;
+  
+  if (username == '') {
+    markError('username');
+    alert("Le nom d'utilisateur fourni est vide");
+    return;
+  }
+  if (password == '') {
+    markError('password');
+    alert("Le mot de passe fourni est vide");
+    return;
+  }
+  cxhr.open('post','profile/challenge', true);
+  cxhr.setRequestHeader("Content-Type", "application/json");
+  cxhr.send(JSON.stringify({
+    username: username,
+    password: password
+  }));
+}
+
+cxhr.onreadystatechange = function() 
+{
+  if (cxhr.readyState == 4) {
+    // Results handling
+    switch (cxhr.status) {
+      case 200: // 200 OK Do Nothing
+        // Server must return a JSON object containing a bool
+        if (JSON.parse(cxhr.responseText).auth) {
+          unMarkError('username');
+          unMarkError('password');
+          lockPassword();
+          alert("L'authentification a réussi.");
+        } else {
+          alert("L'authentification a échoué.");
+          // Clear input fields
+          $("username").removeAttribute('value');
+          $("password").removeAttribute('value');
+        }
+        break;
+      default:
+        alert(cxhr.status+' '+cxhr.statusText);
+        console.log('Unhandled: '+cxhr.status+' '+cxhr.statusText);
+    }
+  }
+}
+
+function lockPassword() {
+  var field = document.getElementById('password');
+  field.setAttribute('disabled',true);
+  field.removeAttribute('value');
+}
 
 function markError(fieldID) {
   var classSet = false;
@@ -13,6 +68,23 @@ function markError(fieldID) {
   if (!classSet) {
     field.className += ' error';
   }
+}
+
+function unlockPassword() {
+  document.getElementById('password').removeAttribute('disabled');
+}
+
+function unMarkError(fieldID) {
+  var field = document.getElementById(fieldID);
+  var classes = field.className.split(' ');
+  // Remove invalid highlighting
+  for (i = 0, count = classes.length; i < count; i++) {
+    if (classes[i].localeCompare('error') == 0) {
+      classes.splice(i--, 1);
+      count--;
+    }
+  }
+  field.className = classes.join(' ');
 }
 
 function updateProfile(fieldID) {

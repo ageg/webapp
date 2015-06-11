@@ -1,6 +1,18 @@
 var config = {};
 var fs = require('fs');
 
+config.adLDAP = {
+  url: 'ldap://hammond.ageg.ca',
+  baseDN: 'ou=utilisateurs,dc=ageg,dc=local',
+  username: 'gab@ageg.local',
+  password: ''
+};
+
+config.devOverride = {
+  ldap: true, // Toggles LDAP AuthN override
+  ldapAuth: true // Situation to simulate with LDAP AuthN override
+};
+
 config.ssloptions = {
   key: fs.readFileSync('./config/server.key'),
   cert: fs.readFileSync('./config/server.crt'),
@@ -23,7 +35,7 @@ config.standards = {
     name: /^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\-\'\ \.]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
     promo: /^(\d{2,})$/,
-    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})\w+)$/i
+    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})(?:ageg\\\w+|\w+\@ageg\.local\.?))$/i
   },
   htmlRegExes: {
     // Same expressions as the regular regExes, but without the enclosing brackets
@@ -33,7 +45,7 @@ config.standards = {
     name: "^([a-zA-ZàÀâÂéÉèÈêÊôÔïÏçÇ\\-'\\ \\.]+)$",
     phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
     promo: "^(\\d{2,})$",
-    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})\\w+)$"
+    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})(?:ageg\\\\\\w+|\\w+\@ageg\.local\.?))$"
   }
 };
 

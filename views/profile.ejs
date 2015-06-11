@@ -51,11 +51,14 @@
     <fieldset>
       <legend>Services avancés</legend>
       <div class="form-group">
-        <label for="ageguname">Utilisateur LDAP de l'AGEG:</label>
-        <input type="text" class="form-control" id="ageguname" name="ageguname" onchange="updateProfile(this.id)" pattern="<%= regExes.uname %>" placeholder="Pas le CIP ni le matricule!" title="Optionnel, si vous avez un compte personnel sur les serveur de l'AGEG, entrez le ici." value="<%= userInfo.ageguname %>">
+        <label for="username">Utilisateur LDAP de l'AGEG:</label>
+        <input type="text" class="form-control" id="username" onchange="unlockPassword()" name="username" pattern="<%= regExes.uname %>" placeholder="Pas le CIP ni le matricule!" title="Optionnel, si vous avez un compte personnel sur les serveur de l'AGEG, entrez le ici.&#10; Le format accepté est AGEG\utilisateur ou utilisateur@ageg.local." value="<%= userInfo.ageguname %>">
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe:</label>
+        <input class="form-control" disabled id="password" onchange="challengeUser()" name="password" type="password">
       </div>
     </fieldset>
   <button type="submit" class="btn btn-default" name="submit">Submit</button>
 </form>
-
 <script type="application/javascript" src="/js/profile-scripts.js"></script>
