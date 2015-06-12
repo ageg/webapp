@@ -25,6 +25,10 @@ var mongoose = require("mongoose");
 require('../models/user.js');
 var User = mongoose.model('User');
 
+// Configuration Values
+var config = require('../config/config.js');
+var depts = require('../models/depts.js');
+
 adminRights = {
   NONE: 0,
   BANDANA: 1,
@@ -53,7 +57,14 @@ check = function (req, res, next) {
     var cip = req.session[cas.session_name];
     User.findOne({ cip: cip }, function (err, obj) {
       if (!obj) {
-        res.render("add_user", { cip: cip });
+        // Create blank session info for AJAX
+        req.session.userInfo = createBlankUser(cip);
+        res.render("profile", {
+          depts: depts,
+          userInfo: req.session.userInfo,
+          regExes: config.standards.htmlRegExes
+        });
+        //res.render("add_user", { cip: cip });
       } else {
         setSessionUserInfo(req, function () {
           next();
@@ -112,38 +123,17 @@ module.exports = {
   setSessionUserInfo: setSessionUserInfo
 }
 
-/*
- 
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/login', auth.bounce, function (req, res) {
-    res.redirect('/');
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated.
-app.get('/firstLogin', auth.bounceWOCheck, function (req, res) {
-    res.json({ success: true });
-});
-
-//Unauthenticated clients will receive a 401 Unauthorized response instead of
-//the JSON data. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/api', auth.block, function (req, res) {
-    res.json({ success: true });
-});
-
-//An example of accessing the CAS user session variable. This could be used to
-//retrieve your own local user records based on authenticated CAS username.
-app.get('/api/user', auth.block, function (req, res) {
-    res.json({ cas_user: req.session[ auth.userName ] });
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then to the
-//provided "redirectTo" query parameter once authenticated.
-app.get('/authenticate', auth.bounceRedirect);
-
-//This route will de-authenticate the client with the Express server and then
-//redirect the client to the CAS logout page.
-app.get('/logout', auth.logout);
-
-*/
+function createBlankUser(cip) {
+  var blank = new User({
+    ageguname: '',
+    cip: cip,
+    prenom: '',
+    nom: '',
+    email: '',
+    concentration: '',
+    phone: '',
+    promo: 0,
+    rights: 0
+  });
+  return blank;
+}
