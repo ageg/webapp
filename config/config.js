@@ -28,11 +28,16 @@ config.serverOptions = {
   port: 8443
 };
 
-config.session = {
-  cookie: {expires: false}, // Drops session cookie when user agent timeouts
-  resave: false, // disables automatic session resave
-  saveUninitialized: false, // disables saving uninitialized sessions
-  secret: '38Dv60Yi50s0QW5hv6slvRHk4RmYZoqkU0PedB96'
+config.adLDAP = {
+  url: 'ldap://hammond.ageg.ca',
+  baseDN: 'ou=utilisateurs,dc=ageg,dc=local',
+  username: 'gab@ageg.local',
+  password: ''
+};
+
+config.devOverride = {
+  ldap: true, // Toggles LDAP AuthN override
+  ldapAuth: true // Situation to simulate with LDAP AuthN override
 };
 
 config.ssloptions = {
@@ -56,14 +61,14 @@ config.standards = {
     name: /^((?!\d)[\w-'\ ]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
     promo: /^(\d{2,})$/,
-    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4}))$/i
+    uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})(?:ageg\\\w+|\w+\@ageg\.local\.?))$/i
   },
   htmlRegExes: {
     // Same expressions as the regular regExes, but without the enclosing brackets
     email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
     name: "^([\\w-'\\ ]+(?\<!\\d))$",
     phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",
-    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})\\w+)$"
+    uname: "^((?!\\d{2}\\s?\\d{3}\\s?\\d{3}|\\w{4}\\d{4})(?:ageg\\\\\\w+|\\w+\@ageg\.local\.?))$"
   }
 };
 

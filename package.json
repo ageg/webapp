@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "activedirectory": "^0.7.0",
     "body-parser": "^1.12.4",
     "cas-authentication": "^0.0.3",
     "ejs": "^2.3.1",
@@ -9,7 +10,6 @@
     "formidable": "^1.0.17",
     "fs": "^0.0.2",
     "mongoose": "^4.0.1",
-    "multer": "^0.1.8",
     "requirejs": "^2.1.17",
     "underscore": "^1.8.3"
   }
