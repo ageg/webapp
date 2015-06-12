@@ -54,10 +54,11 @@ app.get('/logout', function (req, res) {
 var add_user = require("./routes/add_user.js");
 app.post('/addUser', add_user);
 
-app.use('/', require('./routes/refunds.js'));
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
 app.use('/', require('./routes/bandana.js'));
+app.use('/', require('./routes/profile.js'));
+app.use('/', require('./routes/refunds.js'));
 
 // Start the server after the db connection
 var db = mongoose.connection;

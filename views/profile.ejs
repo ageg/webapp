@@ -1,0 +1,49 @@
+<form action="/profile" id="profile" method="post" name="profile" role="form">
+  <fieldset>
+    <legend>Utilisateur</legend>
+    <div class="form-group">
+      <label for="cip">CIP:</label>
+      <input type="text" class="form-control" id="cip" name="cip" value="<%= userInfo.cip %>" readonly>
+    </div>
+    <div class="form-group">
+      <label for="prenom">Prénom:</label>
+      <input type="text" class="form-control" id="prenom" name="prenom" pattern="<%= regExes.name %>" value="<%= userInfo.prenom%>" required>
+    </div>
+    <div class="form-group">
+      <label for="nom">Nom:</label>
+      <input type="text" class="form-control" id="nom" name="nom" pattern="<%= regExes.name %>" value="<%= userInfo.nom %>" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Adresse courriel:</label>
+      <input type="email" class="form-control" id="email" name="email" pattern="<%= regExes.email %>" placeholder="adresse@USherbrooke.ca ou @AGEG.ca" title="Adresse courriel @USherbrooke.ca ou @AGEG.ca" value="<%= userInfo.email %>" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Téléphone:</label>
+      <input type="tel" class="form-control" id="phone" name="phone" pattern="<%= regExes.phone %>" placeholder="ex: 1-819-569-3776" title="Numéro de téléphone à 9 ou 10 chiffres. Les délimiteurs optionnels autorisés sont '(' ,')' , '-' et ' '." value="<%= userInfo.phone %>" required>
+    </div>
+  </fieldset>
+    <div class="form-group">
+      <label for="concentration">Concentration:</label>
+      <select class="form-control" id="concentration" name="concentration">
+        <% depts.list.forEach(function (dept) { %>
+          <% if(userInfo.concentration.localeCompare(dept) === 0) { %>
+            <option selected><%= dept %></option>
+          <% } else { %>
+            <option><%= dept %></option>
+          <% } %>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="promo">Promotion:</label>
+      <input class="form-control" id="promo" min="50" name="promo" step="1" type='number' value="<%= userInfo.promo %>" required>
+      </div>
+    <fieldset>
+      <legend>Services avancés</legend>
+      <div class="form-group">
+        <label for="username">Utilisateur LDAP de l'AGEG:</label>
+        <input type="text" class="form-control" id="username" name="username" datatoggle="tooltip" pattern="<%= regExes.uname %>" placeholder="Pas le CIP ni le matricule!" title="Optionnel, si vous avez un compte personnel sur les serveur de l'AGEG, entrez le ici." value="<%= userInfo.ageguname %>">
+      </div>
+    </fieldset>
+  <button type="submit" class="btn btn-default" name="submit">Submit</button>
+</form>
