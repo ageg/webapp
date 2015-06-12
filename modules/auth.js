@@ -57,9 +57,11 @@ check = function (req, res, next) {
     var cip = req.session[cas.session_name];
     User.findOne({ cip: cip }, function (err, obj) {
       if (!obj) {
+        // Create blank session info for AJAX
+        req.session.userInfo = createBlankUser(cip);
         res.render("profile", {
           depts: depts,
-          userInfo: createBlankUser(cip),
+          userInfo: req.session.userInfo,
           regExes: config.standards.htmlRegExes
         });
         //res.render("add_user", { cip: cip });

@@ -91,23 +91,23 @@ router.post('/profile/ajax', function (req, res) {
 router.post('/profile/challenge', function (req, res) {
   // Challenge the submitted AGEG LDAP Username and password.
   var infos = req.body;
+  console.log(infos);
   if (req.session.userInfo === undefined) {
     // No active Session -> Unauthorized
     res.sendStatus(401);
   } else {
-    console.log(req.body);
-    if (infos.username === undefined || infos.password === undefined) {
+    if (infos.uname === undefined || infos.password === undefined) {
       // Incomplete Request -> Bad Request
       res.sendStatus(400);
     } else {
-      ageg.authN(infos.username, infos.password, function (uname, auth) {
+      ageg.authN(infos.uname, infos.password, function (uname, auth) {
         res.status(200);
         res.send(JSON.stringify({auth: auth}));
         if (auth) {
-          User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {ageguname: uname}}, function (err, doc) {
+          User.findOneAndUpdate({cip: req.session.userInfo.cip}, {$set: {uname: uname}}, function (err, doc) {
             // Nothing to do, just 'cause
           });
-          req.session.userInfo.ageguname = uname;
+          req.session.userInfo.uname = uname;
           req.session.save;
         }
       });
@@ -118,7 +118,6 @@ router.post('/profile/challenge', function (req, res) {
 function cloneObject(src, dst) {
   // Clone an object into another, while maintaining the reference valid
   Object.keys(dst).forEach(function (key) {
-    console.log(key+': '+src[key]);
     dst[key] = src[key];
   });
 }

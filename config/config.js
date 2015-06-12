@@ -30,7 +30,7 @@ config.session = {
 config.standards = {
   regExes: {
     cip: /^([a-z]{4}\d{4})$/i,
-    dept: /^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$/i,
+    dept: /^((?:Biotechnologique|Chimique|Civil|Électrique|Informatique|Mécanique))$/i,
     email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
     name: /^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\-\'\ \.]+)$/i,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
@@ -40,7 +40,7 @@ config.standards = {
   htmlRegExes: {
     // Same expressions as the regular regExes, but without the enclosing brackets
     cip: "^([a-zA-Z]{4}\\d{4})$",
-    dept: "^((?:Biotechnologique|Chimique|Civil|Électronique|Informatique|Mécanique))$",
+    dept: "^((?:Biotechnologique|Chimique|Civil|Électrique|Informatique|Mécanique))$",
     email: "^([\\w\\d\\.]+\\@(?:usherbrooke.ca|ageg.ca))$",
     name: "^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\\-'\\ \\.]+)$",
     phone: "^([\\d]?[\\(\\ \\-]?[\\d]{3}[\\)\\ \\-]?[\\d]{3}[\\ \\-]?[\\d]{4})$",

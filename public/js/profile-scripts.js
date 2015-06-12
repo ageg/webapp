@@ -2,11 +2,11 @@ var xhr = new XMLHttpRequest;
 var cxhr = new XMLHttpRequest; // Challenge XMLHttpRequest
 
 function challengeUser() {
-  var username = document.getElementById('username').value;
+  var uname = document.getElementById('uname').value;
   var password = document.getElementById('password').value;
   
-  if (username == '') {
-    markError('username');
+  if (uname == '') {
+    markError('uname');
     alert("Le nom d'utilisateur fourni est vide");
     return;
   }
@@ -18,7 +18,7 @@ function challengeUser() {
   cxhr.open('post','profile/challenge', true);
   cxhr.setRequestHeader("Content-Type", "application/json");
   cxhr.send(JSON.stringify({
-    username: username,
+    uname: uname,
     password: password
   }));
 }
@@ -31,14 +31,14 @@ cxhr.onreadystatechange = function()
       case 200: // 200 OK Do Nothing
         // Server must return a JSON object containing a bool
         if (JSON.parse(cxhr.responseText).auth) {
-          unMarkError('username');
+          unMarkError('uname');
           unMarkError('password');
           lockPassword();
           alert("L'authentification a réussi.");
         } else {
           alert("L'authentification a échoué.");
           // Clear input fields
-          $("username").removeAttribute('value');
+          $("uname").removeAttribute('value');
           $("password").removeAttribute('value');
         }
         break;

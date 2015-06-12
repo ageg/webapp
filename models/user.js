@@ -4,12 +4,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-  ageguname: String,
+  uname: String, // AGEG LDAP Username
   cip: String,
   prenom: String,
   nom: String,
   email: String,
-  concentration: {type: String, enum: dept.list},
+  dept: {type: String, enum: dept.list},
   phone: String,
   promo: Number,
   rights: Number
@@ -55,7 +55,7 @@ UserSchema.path('promo').validate(function (promo) {
 // TODO: THIS
 
 // AGEG LDAP Username validation
-UserSchema.path('ageguname').validate(function (uname) {
+UserSchema.path('uname').validate(function (uname) {
   return config.standards.regExes.uname.test(uname);
 }, 'Le nom d\'utilisateur du réseau de l\'AGEG fourni est invalide.');
 
