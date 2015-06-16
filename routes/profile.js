@@ -71,12 +71,12 @@ router.post('/profile/ajax', function (req, res) {
       runValidators: true // Force entries validation on update
     }, function (err, doc) { //callback
       // Reload profile Page
-      if (err) {
-        res.status(207); // Multiple Status, error object enclosed.
-        res.send(JSON.stringify(err.errors));
-      } else {
-        res.sendStatus(200); // OK
-      }
+      res.status(200); // "OK"
+      Object.keys(infos).forEach(function(elem) { // Roll through all provided fields
+        infos[elem] = (!(err && err.errors && err.errors[elem]) && (doc && doc[elem] != undefined)); // Test if current field is NOT in the errors object (or if there even is one...)
+      console.log('infos['+elem+']: '+infos[elem]);
+      });
+      res.send(JSON.stringify(infos));
       if (doc) {
         cloneObject(doc, req.session.userInfo);
         req.session.save(); // Save Session after AJAX interaction
