@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "activedirectory": "^0.7.0",
     "body-parser": "^1.12.4",
     "cas-authentication": "0.0.3",
     "ejs": "^2.3.1",
@@ -8,6 +9,6 @@
     "express-session": "^1.11.2",
     "fs": "^0.0.2",
     "mongoose": "^4.0.1",
-    "underscore":  "^1.8.3"
+    "underscore": "^1.8.3"
   }
 }
