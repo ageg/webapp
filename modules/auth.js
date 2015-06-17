@@ -37,34 +37,6 @@ var cas = new CASAuthentication({
   service_url : 'https://localhost:' + ('8443')
 });
 
-setSessionUserInfo = function (req, callback) {
-  var cip = req.session[cas.session_name];
-  User.findOne({ cip: cip }, function (err, obj) {
-    if (obj) {
-      req.session.userInfo = obj;
-    }
-    
-    callback();
-  });
-}
-
-check = function (req, res, next) {
-  if (!req.session.userInfo) {
-    var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
-      if (!obj) {
-        res.render("add_user", { cip: cip });
-      } else {
-        setSessionUserInfo(req, function () {
-          next();
-        });
-      }
-    });
-  } else {
-    next();
-  }
-}
-
 allow = function (rights) {
   return function (req, res, next) {
     var cip = req.session[cas.session_name];
@@ -87,15 +59,15 @@ allow = function (rights) {
   }
 }
 
-bounce = [cas.bounce, check];
+bounce = [cas.bounce];
 
-allow_bandana = [cas.bounce, check, allow([adminRights.BANDANA, adminRights.PERMIE, adminRights.ADMIN])];
+allow_bandana = [cas.bounce, allow([adminRights.BANDANA, adminRights.PERMIE, adminRights.ADMIN])];
 
-allow_permie = [cas.bounce, check, allow([adminRights.PERMIE, adminRights.ADMIN])];
+allow_permie = [cas.bounce, allow([adminRights.PERMIE, adminRights.ADMIN])];
 
-allow_admin = [cas.bounce, check, allow([adminRights.ADMIN])];
+allow_admin = [cas.bounce, allow([adminRights.ADMIN])];
 
-block = [cas.block, check];
+block = [cas.block];
 
 module.exports = {
   userNameSession: cas.session_name,
@@ -109,7 +81,6 @@ module.exports = {
   allow_permie: allow_permie,
   allow_admin: allow_admin,
   cas: cas,
-  setSessionUserInfo: setSessionUserInfo
 }
 
 /*

@@ -3,8 +3,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-  ageguname: String,
-  cip: String,
+  cip: { type: String, index: { unique: true } },
   prenom: String,
   nom: String,
   email: String,
