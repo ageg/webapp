@@ -45,7 +45,6 @@ router.post('/users', utils.verify_params(['cip','prenom','nom','email','phone',
         });
       }
       
-      req.session.userInfo = user;
       user.save(function (err) {
         if (err) next(err);
         else res.json(user);
