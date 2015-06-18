@@ -5,7 +5,6 @@ var ejsLayouts = require("express-ejs-layouts");
 var express = require('express');
 var mongoose = require("mongoose");
 var https = require('https'); // use HTTPS Server
-var multer = require('multer'); // use Multer for file uploads
 var url = require('url'); // URL parsing library
 var User = mongoose.model('User');
 

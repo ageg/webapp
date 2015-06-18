@@ -1,27 +1,33 @@
+var autoIncrement = require('mongoose-auto-increment');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var RequestSchema = new Schema({
-  ID: Number,
-  cip: String,
-  prenom: String,
-  nom: String,
-  email: String,
-  reference: Number,
-  category: String,
-  billCount: Number,
-  total: Number,
-  notes: String,
-  submit_date: Date,
-  status: Number
-  // TODO: Add submittedDate
-});
+var cnx = mongoose.createConnection("mongodb://localhost/ageg");
+autoIncrement.initialize(cnx);
 
-RequestSchema.methods = {
-  listAll: function (findObj, callback) {
-    this.find(findObj, callback);
-  }
-};
+var RefundSchema = new Schema({
+  refundID: {
+    index: { unique: true },
+    required: true,
+    type: Number
+  },
+  cip: String,
+  bills: [
+    {
+      billID: Number,
+      notes: String,
+      supplier: String,
+      value: Number
+    }
+  ],
+  billCount: Number,
+  category: String,
+  notes: String,
+  reference: Number,
+  submit_date: Date,
+  status: Number,
+  total: Number
+});
 
 var RequestBillSchema = new Schema({
   billID: Number,
@@ -31,7 +37,16 @@ var RequestBillSchema = new Schema({
   value: Number
 });
 
-// TODO: Archives?
+// AutoIncrements
+RefundSchema.plugin(autoIncrement.plugin, { model: 'Refunds', field: 'refundID' });
 
-mongoose.model('Request', RequestSchema);
+// Validation
+// CIP format validation
+RefundSchema.path('cip').validate(function (cip) {
+  return /[a-zA-Z]{4}\d{4}/i.test(cip);
+}, 'Le CIP fourni ne respecte pas le format standard du CIP (ex: AGEG1337).');
+
+// TODO: Validation rules for other fields
+
+mongoose.model('Refunds', RefundSchema);
 mongoose.model('Bill', RequestBillSchema);

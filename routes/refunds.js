@@ -4,9 +4,9 @@ var config = require('../config/config');
 var crypto = require('crypto');
 var express = require('express');
 var fs = require('fs');
+var idRegEx = /\d+/;
 var mongoose = require("mongoose");
-var multer = require('multer');
-var Request = mongoose.model('Request');
+var Refund = mongoose.model('Refunds');
 var router = express.Router();
 var url = require('url');
 
@@ -20,167 +20,167 @@ var refundStatus = {
 
 Object.freeze(refundStatus);
 
-router.get('/refunds', auth.bounce, function(req, res) {
-  if (typeof(req.session.userInfo) === 'undefined') {
-    // Fix that with some nicer function that redirects here
-    res.redirect('/login');
-  } else {
-    res.redirect('/refunds/menu');
-  }
-});
+/* * * * * * * * * * * * * * * * * * * * *
+ * REST MAP
+ * 
+ * POST:
+ *    GLOBAL: CREATE Entry (Success Reply: 201)
+ *    SPECIFIC: ERROR 400
+ * 
+ * GET:
+ *    GLOBAL: GET All entries (Success Reply: 200)
+ *    SPECIFIC: GET Specific entry details (Success Reply: 200)
+ * 
+ * PUT:
+ *    GLOBAL: ERROR 403
+ *    SPECIFIC: UPDATE specific entry (Success Reply: 202?)
+ * 
+ * DELETE:
+ *    GLOBAL: ERROR 403
+ *    SPECIFIC: DELETE Specific Entry (Success Reply: 204?)
+ * 
+ * * * * * * * * * * * * * * * * * * * * */
 
-router.get('/refunds/menu', auth.bounce, function(req, res) {
-  if (typeof(req.session.userInfo) === 'undefined') {
-    // Fix that with some nicer function that redirects here
-    res.redirect('/login');
-  } else {
-    var list = new Request();
-    list.listAll({'cip': req.session.userInfo.cip}, function (err, entries){
-      console.log(entries);
-    });
-    res.render('refunds/menu');
-  }
-});
-
-router.get('/refunds/request', auth.bounce, function(req, res) {
-  if (typeof(req.session.userInfo) === 'undefined') {
-    // TODO: Fix that with some nicer function that redirects here
-    res.redirect('/login');
-  } else {
-    // Fetch request from archives if need be
-    // TODO: Actual fetching instead of automatic seeding
-
-    // NEW request
-    if (config.devOverride) {
-      var request = new Request({
-        cip: 'devo0001',
-        prenom: 'test',
-        nom: 'session',
-        email: 'test@example.com',
-        ID: 0, // TODO: ID-Assignation routines
-        billCount: 1,
-        category: '',
-        total: 0,
-        notes: ''
-      });
-    } else {
-      var request = new Request({
-        cip: req.session.userInfo.cip,
-        prenom: req.session.userInfo.prenom,
-        nom: req.session.userInfo.nom,
-        email: req.session.userInfo.email,
-        ID: 0, // TODO: ID-Assignation routines
-        billCount: 1,
-        category: '',
-        total: 0,
-        notes: ''
-      });
+router.get('/refunds', function(req, res) {
+  // Client requires the list of refund requests
+  // TODO: User & Admin Rights Validation -> Build Mongo Query Conditions
+  Refund.find({'cip': req.session['cas_user']}, {
+    // Projection : Superficial information regarding the request
+    billCount: true,
+    category: true,
+    cip: true,
+    notes: true,
+    reference: true,
+    refundID: true,
+    submit_date: true,
+    status: true,
+    total: true
+  }, function (err, entries) {
+    if(err){
+      // For Future Use
+      throw err;
     }
-    res.render("refunds", {
-      formulas: buildFormFormulas(request.billCount),
-      reqInfo : request
+    res.json(entries);
+  });
+});
+
+router.get('/refunds/:id', function(req, res) {
+  // Client requires a specific document
+  if (typeof(req.session['cas_user']) === 'undefined') {
+    res.status(401);
+    res.send("No Active Session");
+  } else {
+    // TODO: User & Admin rights Validation -> Build Mongo Query Conditions
+    // Assuming local user, not admin
+    Refund.find({
+      'cip': req.session['cas_user'],
+      'refundID': parseInt(req.params.id)
+    }, function (err, entry) {
+      if (err) {
+        throw err;
+      }
+      if (entry[0]['cip'] == req.session['cas_user']) {
+        res.json(entry);
+      } else {
+        res.status(403);
+        res.send("Trying to access a resource you don't have access to.");
+        // TODO: Fail2Ban?
+      }
     });
   }
 });
 
-router.post('/refunds/request', [ multer({dest: config.refundOptions.uploadDir}), function(req, res) {
-  // User hit the submit button, or, well, nice hack!
+router.post('/refunds', function(req, res) {
+  // Create new entry in DB
   var infos = req.body;
-  var request = new Request({
-    // TODO: Sanity Checks
-    ID: infos.request_id,
+  var refund = new Refund({
     category: infos.category,
+    cip: infos.cip,
     total: infos.total,
     notes: infos.notes
   });
-  var needBounce = (typeof(req.session.userInfo) === undefined);
-  if (needBounce) {
-    // User session got dropped, save his data, bounce him back, then complete the actions
-    request.cip = infos.cip;
-    request.status = refundStatus.WORK_IN_PROGRESS;
-  } else {
-    request.cip = req.session.userInfo.cip;
-    request.prenom = req.session.userInfo.prenom;
-    request.nom = req.session.userInfo.nom;
-    request.email = req.session.userInfo.email;
-    request.status = refundStatus.SUBMITTED;
-  }
-  console.log(infos);
-  console.log(req.files);
-  
-  if (request.ID === 0) {
-    // Save the request
-    request.save(function(err){
-      if (err) throw err;
-      if (needBounce) {
-        auth.bounce();
-      } else {
-        // TODO: Post-submit actions, like emails & fun
-        res.render('refunds',{
-          formulas: buildFormFormulas(request.billCount),
-          reqInfo : request
-        });
-      }
+  Object.keys(infos.bills).forEach(function(elem) {
+    console.log(elem);
+  });
+  refund.save(function(err, entry) {
+    if (err) {
+      throw err;
+    }
+    res.json({
+      err: err,
+      refund: refund
     });
+  });
+});
+
+router.post('/refunds/:id', function(req, res) {
+  // POST Method is forbidden on a specific entry
+  res.status(403);
+  res.send('POST Method is forbidden on a specific entry');
+});
+
+router.put('/refunds', function(req, res){
+  // PUT Method is forbidden on the global array
+  res.sendStatus(403);
+});
+
+router.put('/refunds/:id', function(req, res) {
+  // Client requires a specific document
+  if (typeof(req.session['cas_user']) === 'undefined') {
+    res.status(401);
+    res.send("No Active Session");
   } else {
-    // TODO: UPDATE instead of Save
-    request.save(function(err){
-      if (err) throw err;
-        if (needBounce) {
-          auth.bounce();
-        } else {
-          // TODO: Post-submit actions, like emails & fun
-          res.render('refunds',{
-            formulas: buildFormFormulas(request.billCount),
-              reqInfo : request
-          });
-        }
-    });
+    // TODO: User AuthZ
+    // TODO: Update Specific Entry
   }
-}]);
+});
+
+router.delete('/refunds', function(req, res) {
+  // DELETE Method is forbidden on the global array
+  res.sendStatus(403);
+});
+
+/****
+ * UPLOADS TODO!!!
+ * POST -> Create New File
+ * GET -> Get File (Specific)
+ * PUT -> Update File (Specific)
+ * DELETE -> Delete File (Specific)
+****/
+
+router.get('/refunds', function(req, res) {
+  // GET Method is forbidden on files Array
+  res.sendStatus(403);
+});
 
 router.get('/refunds/uploads/:fileName', function(req, res) {
   /***
    * Fake Static Route
    * Uploads files on demand, or returns a 404
    ***/
-  if (typeof(req.session.userInfo) === 'undefined') {
-    // Unauthenticated user, will not serve the request
-    res.sendStatus(401);
-  } else {
-    var filePath = 'uploads/'+req.params.fileName;
-    fs.exists(filePath, function(exists){
-      if (exists) {
-        // File Exists
-        res.status(200);
-        res.send(fs.readFileSync(filePath));
-      } else {
-        // 404: File Not Found
-        res.sendStatus(404);
-      }
-    });
-  }
+  // TODO: Check User has access to the requested file
+  var filePath = 'uploads/'+req.params.fileName;
+  fs.exists(filePath, function(exists){
+    if (exists) {
+      // File Exists
+      res.status(200);
+      res.send(fs.readFileSync(filePath));
+    } else {
+      // 404: File Not Found
+      res.sendStatus(404);
+    }
+  });
 });
 
-router.post('/refunds/uploads', function(req, res) {
+router.post('/refunds/uploads', function(req,res) {
   /***
-   * TODO: Reconfigure as communication route for the PUT Method
-   ***/
-  console.log(req.body);
-  res.status(200);
-  res.end();
-});
-
-router.put('/refunds/uploads', function(req,res) {
-  /***
-   * Using HTTP Method PUT to upload the file, to keep POST clean
-   * (PUT is also OK to reply with a 201)
+   * Upload New File
    **/
   
   if (config.devOptions.verboseDebug) {
     console.log(req.headers);
   }
-  
+  // TODO: Handle User Validation
   if (typeof req.session.userInfo === 'undefined') {
     res.sendStatus(401);
     return;
@@ -239,41 +239,29 @@ router.put('/refunds/uploads', function(req,res) {
   });
 });
 
-router.post('/refunds/request/update', function(req, res) {
-  var infos = req.body;
-  console.log(infos);
-  var request = new Request({
-    // TODO: Session checks
-    cip: req.session.userInfo.cip,
-    prenom: req.session.userInfo.prenom,
-    nom: req.session.userInfo.nom,
-    email: req.session.userInfo.email,
-    // TODO: Sanity Checks
-    ID: infos.request_id,
-    category: infos.category,
-    total: infos.total,
-    notes: infos.notes,
-    status: refundStatus.WORK_IN_PROGRESS
-  });
-  if (request.ID === 0) {
-    request.save(function(err){
-      if (err) {
-        throw err;
-      } else {
-        //console.log(request._id);
-      }
-    });
-    // TODO: Assign requestID and return it to the client
-    res.status(202);
-    res.end();
-  } else {
-    // TODO: Fix for data update
-    request.save(function(err){
-      if (err) throw err;
-    });
-    res.status(202);
-    res.end();
-  }
+router.post('/refunds/uploads/:id', function(req, res) {
+  // POST Method is Forbidden for Uploads
+  res.sendStatus(403);
+});
+
+router.put('/refunds/uploads', function(req, res) {
+  // POST Method is Forbidden for Uploads
+  res.sendStatus(403);
+});
+
+router.put('/refunds/uploads/:id', function(req, res){
+  // TODO: Aser AuthZ
+  // TODO: Update a specific file
+});
+
+router.delete('/refunds/uploads', function(req, res) {
+  // DELETE Method is not authorized on the whole array
+  res.sendStatus(403);
+});
+
+router.delete('refunds/uploads/:id', function(req, res) {
+  // TODO: User AuthZ for requested ID
+  // TODO: Delete Specific file
 });
 
 function buildUploadedFileName(userInfo, fileName) {
