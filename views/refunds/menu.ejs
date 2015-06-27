@@ -1,6 +1,161 @@
-<div class="jumbotron">
-    <h1>Mes demandes de remboursement</h1>
-</div>
-<h1>Demandes en cours de rédaction</h1>
-<h1>Demandes en attente de révision</h1>
-<h1>Demandes archivées</h1>
+<ng-view></ng-view>
+
+<script type="text/ng-template" id="/menu.html">
+  <div class="jumbotron">
+      <h1>Mes demandes de remboursement</h1>
+  </div>
+  <!--<h1>Demandes en cours de rédaction</h1>-->
+  <!--<div ng-app="refundsApp" ng-controller="refundsCtrl">-->
+  <div>
+    <table>
+      <caption>Demandes en cours de rédaction</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Factures</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="window.document.location='#/{{$refundID}}';">
+          <td>{{ entry.refundID }}</td>
+          <td>{{ entry.reference }}</td>
+          <td>{{ entry.category }}</td>
+          <td>{{ entry.billCount }}</td>
+          <td>{{ entry.total | currency}}</td>
+          <td>{{ entry.notes }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Factures</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </tfoot>
+    </table>
+    <!--<h1>Demandes en attente de révision</h1>-->
+    <table>
+      <caption>Demandes en attente de révision</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="entry in refundList">
+          <td>{{ entry.refundID }}</td>
+          <td>{{ entry.reference }}</td>
+          <td>{{ entry.category }}</td>
+          <td>{{ entry.total }}</td>
+          <td>{{ entry.notes }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </tfoot>
+    </table>
+    <!--<h1>Demandes archivées</h1>-->
+    <table>
+      <caption>Demandes archivées</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="entry in refundList">
+          <td>{{ entry.refundID }}</td>
+          <td>{{ entry.reference }}</td>
+          <td>{{ entry.category }}</td>
+          <td>{{ entry.total }}</td>
+          <td>{{ entry.notes }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Catégorie</th>
+          <th>Total ($)</th>
+          <th>Notes</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</script>
+<script id="/details.html" type="text/ng-template">
+  <form role="form" action="/refunds" enctype="multipart/form-data" method="post" id="refundform" name="refundform">
+    <fieldset>
+      <legend>Demandeur:</legend>
+      <input type="text" class="form-control" id="cip" name="cip" ng-model="refundInfo.cip" placeholder="AGEG1337" readonly required>
+    </fieldset>
+    <fieldset>
+      <legend>Demande</legend>
+      <input type="hidden" class="form-control" id="refundID" name="refundID" ng-model="refundInfo.refundID" required>
+      <input type="hidden" class="form-control" id="billCount" name="billCount" ng-model="refundInfo.billCount">
+      <div class="form-group">
+        <label for="reference">Référence</label>
+        <input type="text" class="form-control" id="reference" name="reference" ng-model="refundInfo.reference" placeholder="Description de la demande" required>
+      </div>
+      <div class="form-group">
+        <label for="cateremboursements/gory">Catégorie budgétaire</label>
+        <input type="text" class="form-control" id="category" name="category" ng-model="refundInfo.category" placeholder="Catégorie Budgétaire" required>
+      </div>
+      <div class="form-group">
+        <label for="total">Total</label>
+        <output id="totalOut" name="totalOut" ng-model="refundInfo.Total">{{ refundInfo.total }}&nbsp;$</output>
+        <input type="hidden" class="form-control" id="total" name="total" ng-model="refundInfo.total">
+      </div>
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea class="form-control" id="notes" name="notes" ng-model="refundInfo.notes" placeholder="Notes sur la demande" rows="4"></textarea>
+      </div>
+    </fieldset>
+    <!-- List Bills Here! -->
+    <fieldset ng-repeat="bill in refundInfo.bills">
+      <legend>Facture #{{ bill.billID}}</legend>
+      <div class="form-group">
+        <label for='supplier{{ bill.billID }}'>Fournisseur</label>
+        <input class="form-control" id='supplier{{  billNo }}' name='supplier{{ billNo }}' ng-model="bill.supplier" type='text' required>
+      </div>
+      <div class="form-group">
+        <label for='value{{ billNo }}'>Montant</label>
+        <input class="form-control" id="value{{ bill.billID }}" type='number' name='value{{ bill.billID }}' ng-model="bill.value" step='0.01' required>
+      </div>
+      <div class="form-group">
+        <label for='bill{{ bill.billID }}'>Facture</label>
+        <input accept="image/*|application/pdf" class="form-control" id="bill{{ bill.billID }}" name="bill{{ bill.billID }}" type="file" onchange="upload(this.id);">
+      </div>
+      <div class="form-group">
+        <label for='note{{ bill.billID }}'>Notes</label>
+        <textarea class="form-control" id="note{{ bill.billID }}" name="note{{ bill.billID }}" ng-model="bill.notes" placeholder="Notes sur la facture" rows="4"></textarea>
+      </div>
+    </fieldset>
+    <hr id="marker">
+    <button type="button" class="btn btn-default" name="add" onClick="addBill()">Ajouter une facture</button>
+    <button type="button" class="btn btn-default" name="save" onClick="saveRequest(document.getElementById('bill_count').value,0);">Sauvegarder la demande</buttton>
+    <button type="submit" class="btn btn-default" name="submit">Soumettre la demande</button>
+  </form>
+</script>
+<script type='application/javascript' src="/js/refund-scripts.js"></script>

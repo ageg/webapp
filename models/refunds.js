@@ -15,6 +15,7 @@ var RefundSchema = new Schema({
   bills: [
     {
       billID: Number,
+      filename: String,
       notes: String,
       supplier: String,
       value: Number

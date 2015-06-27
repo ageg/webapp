@@ -20,6 +20,12 @@ var refundStatus = {
 
 Object.freeze(refundStatus);
 
+// Non API Route:
+router.get('/remboursements', auth.bounce, function(req, res) {
+  res.render('refunds/menu');
+});
+
+
 /* * * * * * * * * * * * * * * * * * * * *
  * REST MAP
  * 

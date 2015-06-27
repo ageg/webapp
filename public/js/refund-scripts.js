@@ -1,4 +1,53 @@
+var refundsApp = angular.module('refundsApp', ['ngRoute']);
 var xhr = new XMLHttpRequest();
+
+refundsApp.controller('refundsCtrl',['$scope', '$http', function($scope,$http){
+  /*$.ajax({
+    //data: data,
+    dataType: "json",
+    method: "GET",
+    success: function(data, status, jqXHR){
+      $scope.refundList = data;
+    },
+    url: "/refunds"
+  });*/
+  $http({method: 'GET', url: '/refunds'}).success(function(data, status, headers, config) {
+    console.log('data: ', data );
+    $scope.refundList = data;
+  }).error(function(data, status, headers, config) {
+    console.log('Oops and error', data);
+  });
+}]);
+
+refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+  $http({
+      method: 'GET',
+      url: '/refunds/'+$routeParams.id
+  }).success(function(data, status, headers, config) {
+    console.log('Detailed data: ', data );
+    $scope.refundInfo = data[0];
+  }).error(function(data, status, headers, config) {
+    console.log('Oops and error', data);
+  });
+}]);
+
+refundsApp.config(['$routeProvider', function ($routeProvider) {
+  $routeProvider
+  .when('/', {
+    templateUrl: '/menu.html',
+    controller: 'refundsCtrl'
+  }).when('/:id', {
+    templateUrl: '/details.html',
+    controller: 'refundDetailCtrl'
+  })
+  .when('/remboursements/', {
+    templateUrl: '/menu.html',
+    controller: 'refundsCtrl'
+  }).when('/remboursements/:id', {
+    templateUrl: '/details.html',
+    controller: 'refundDetailCtrl'
+  });
+}]);
 
 function addBill()
 {
