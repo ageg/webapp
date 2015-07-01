@@ -39,7 +39,7 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
       url: '/refunds/'+$routeParams.id
   }).success(function(data, status, headers, config) {
     console.log('Detailed data: ', data );
-    $scope.refundInfo = data[0];
+    $scope.refundInfo = data;
   }).error(function(data, status, headers, config) {
     console.log('Oops and error', data);
   });
@@ -72,6 +72,8 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
     });
     $scope.saveRequest();
   };
+  //$scope.fileUploader = new FileUploader();
+  //$scope.upload = upload();
 }]);
 
 refundsApp.config(['$routeProvider', function ($routeProvider) {
@@ -90,10 +92,11 @@ refundsApp.config(['$routeProvider', function ($routeProvider) {
 
 refundsApp.filter('sumOfBills', function(){
   return function (data, key) {
-    if (typeof (data) === 'undefined' && typeof (key) === 'undefined') {
+    if (typeof (data) === 'undefined' || typeof (key) === 'undefined') {
       return 0;
     }
     var sum = 0;
+    console.log(data);
     for (var i = 0; i < data.length; i++) {
       sum = sum + data[i][key];
     }
@@ -102,23 +105,12 @@ refundsApp.filter('sumOfBills', function(){
 });
 
 function upload(fileID){
-  var file = document.getElementById(fileID);
+  var file = $("#fileID");
   if (typeof file.files === 'undefined')
   {
     
   } else {
-    var formData = new FormData();
-    formData.append('fichier', file.files[0]);
-    formData.append('cip', 'foug1803');
-    formData.append('prenom', 'Gab');
-    
     var md = "";
-    
-    var test = {
-      cip: 'foug1803',
-      prenom: 'gab',
-      file: md
-    };
     
     var reader = new FileReader();
     var fileBuffer = reader.readAsBinaryString(file.files[0]);
@@ -127,13 +119,21 @@ function upload(fileID){
       var jssha = new jsSHA(reader.result,"BYTES");
       md = jssha.getHash("SHA-512","HEX");
       file.innerHTML = md;
-      console.log("SHA512: " + (md));
       
-      xhr.open('put', '/refunds/uploads', true);
+      $.ajax({
+        headers: {
+          'X-File-Name': file.files[0].name,
+          'X-File-Size': file.files[0].size,
+          'X-File-SHA512SUM': md
+        },
+        method: 'POST',
+        url: '/refunds/uploads'
+      });
+      /*xhr.open('put', '/refunds/uploads', true);
       xhr.setRequestHeader("X-File-Name", file.files[0].name);
       xhr.setRequestHeader("X-File-Size", file.files[0].size);
       xhr.setRequestHeader("X-File-SHA512SUM", md);
-      xhr.send(file.files[0]);
+      xhr.send(file.files[0]);*/
     }
   }
 }

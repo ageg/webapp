@@ -83,7 +83,7 @@ router.get('/refunds/:id', function(req, res) {
   } else {
     // TODO: User & Admin rights Validation -> Build Mongo Query Conditions
     // Assuming local user, not admin
-    Refund.find({
+    Refund.findOne({
       'cip': req.session['cas_user'],
       'refundID': parseInt(req.params.id)
     }, {
@@ -95,7 +95,7 @@ router.get('/refunds/:id', function(req, res) {
       if (err) {
         throw err;
       }
-      if (entry[0]['cip'] == req.session['cas_user']) {
+      if (entry['cip'] == req.session['cas_user']) {
         res.json(entry);
       } else {
         res.status(403);
