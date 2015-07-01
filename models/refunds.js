@@ -1,4 +1,5 @@
 var autoIncrement = require('mongoose-auto-increment');
+var config = require('../config/config.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -11,43 +12,55 @@ var RefundSchema = new Schema({
     required: true,
     type: Number
   },
-  cip: String,
+  cip: {
+    match: config.standards.regExes.cip,
+    type: String
+  },
   bills: [
     {
-      billID: Number,
+      billID: {
+        required: true,
+        type: Number
+      },
       filename: String,
       notes: String,
-      supplier: String,
+      supplier: {
+        //match: config.standards.regExes.text,
+        type: String
+      },
       value: Number
     }
   ],
   billCount: Number,
-  category: String,
-  notes: String,
-  reference: Number,
+  category: {
+    //match: config.standards.regExes.text,
+    type: String
+  },
+  notes: {
+    //match: config.standards.regExes.longText,
+    type: String
+  },
+  reference: {
+    //match: config.standards.regExes.text,
+    type: String
+  },
   submit_date: Date,
   status: Number,
   total: Number
 });
 
-var RequestBillSchema = new Schema({
-  billID: Number,
-  notes: String,
-  requestID: Number,
-  supplier: String,
-  value: Number
-});
-
 // AutoIncrements
 RefundSchema.plugin(autoIncrement.plugin, { model: 'Refunds', field: 'refundID' });
-
-// Validation
-// CIP format validation
-RefundSchema.path('cip').validate(function (cip) {
-  return /[a-zA-Z]{4}\d{4}/i.test(cip);
-}, 'Le CIP fourni ne respecte pas le format standard du CIP (ex: AGEG1337).');
+//RefundSchema.plugin(autoIncrement.plugin, { model: 'Refunds', field: 'bills.billID' });
 
 // TODO: Validation rules for other fields
 
+function validateInput(input, regEx) {
+  /* Arguments:
+   * input: The field to validate
+   * regEx: The regEx against which the input will be tested
+   */
+  return regEx.test(input);
+}
+
 mongoose.model('Refunds', RefundSchema);
-mongoose.model('Bill', RequestBillSchema);

@@ -25,6 +25,11 @@ router.get('/remboursements', auth.bounce, function(req, res) {
   res.render('refunds/menu');
 });
 
+/* * * * * * * * * * * * * * * * * * * * *
+ * Suggestions de Joël:
+ * - Classer les factures par dossier (un dossier par demande)
+ * - Renomer les factures ID<refundID>-<Supplier>-<billNo>.<ext>
+ * * * * * * * * * * * * * * * * * * * * /
 
 /* * * * * * * * * * * * * * * * * * * * *
  * REST MAP
@@ -43,7 +48,7 @@ router.get('/remboursements', auth.bounce, function(req, res) {
  * 
  * DELETE:
  *    GLOBAL: ERROR 403
- *    SPECIFIC: DELETE Specific Entry (Success Reply: 204?)
+ *    SPECIFIC: DELETE Specific Entry? (Success Reply: 204?)
  * 
  * * * * * * * * * * * * * * * * * * * * */
 
@@ -81,6 +86,11 @@ router.get('/refunds/:id', function(req, res) {
     Refund.find({
       'cip': req.session['cas_user'],
       'refundID': parseInt(req.params.id)
+    }, {
+      // Projection
+      _id: false,
+      __v: false,
+      "bills._id": false
     }, function (err, entry) {
       if (err) {
         throw err;
@@ -97,26 +107,41 @@ router.get('/refunds/:id', function(req, res) {
 });
 
 router.post('/refunds', function(req, res) {
-  // Create new entry in DB
-  var infos = req.body;
-  var refund = new Refund({
-    category: infos.category,
-    cip: infos.cip,
-    total: infos.total,
-    notes: infos.notes
-  });
-  Object.keys(infos.bills).forEach(function(elem) {
-    console.log(elem);
-  });
-  refund.save(function(err, entry) {
-    if (err) {
-      throw err;
-    }
-    res.json({
-      err: err,
-      refund: refund
+  if (typeof(req.session['cas_user']) === 'undefined') {
+    res.status(401);
+    res.send("No Active Session");
+  } else {
+    // Create new entry in DB
+    var infos = req.body;
+    var refund = new Refund({
+      billCount: infos.billCount,
+      category: infos.category,
+      cip: req.session['cas_user'],
+      total: infos.total,
+      notes: infos.notes,
+      reference: infos.reference
     });
-  });
+    if (infos.bills) {
+      Object.keys(infos.bills).forEach(function(elem) {
+        console.log(elem);
+      });
+    }
+    refund.save({
+      // Options
+      fields: {
+        _id: false,
+        __v: false
+      }
+    }, function(err, entry) {
+      if (err) {
+        throw err;
+      }
+      res.json({
+        err: err,
+        refund: entry
+      });
+    });
+  }
 });
 
 router.post('/refunds/:id', function(req, res) {
@@ -132,11 +157,37 @@ router.put('/refunds', function(req, res){
 
 router.put('/refunds/:id', function(req, res) {
   // Client requires a specific document
+  var infos = req.body;
+  console.log(infos);
+  var findParams = { // User AuthN // TODO: Validation of review-enabled users
+    cip: infos.cip,
+    refundID: parseInt(req.params.id)
+  };
   if (typeof(req.session['cas_user']) === 'undefined') {
     res.status(401);
     res.send("No Active Session");
   } else {
-    // TODO: User AuthZ
+    Refund.findOneAndUpdate(findParams, {
+      // Set New Params
+      $set: infos
+    }, {
+      // Operation Options
+      fields: {
+        _id: false,
+        __v: false,
+        "bills._id": false
+      },
+      new: true, // Returns new values instead of old values
+      runValidators: true, // Force entries validation on update
+      upsert: true
+    }, function (err, entry) {
+      if (err) {
+        console.log(err);
+        //throw err;
+      }
+      res.status(200);
+      res.json(entry);
+    });
     // TODO: Update Specific Entry
   }
 });
@@ -270,9 +321,9 @@ router.delete('refunds/uploads/:id', function(req, res) {
   // TODO: Delete Specific file
 });
 
-function buildUploadedFileName(userInfo, fileName) {
-  // TODO: get automatic file ID
-  var newName = getSessionCode()+'-Facture'+'-001-' + userInfo.prenom.charAt(0).toUpperCase() + userInfo.nom.charAt(0).toUpperCase();
+function buildUploadedFileName(refundID, billID, supplier, fileName) {
+  // VPAF Requested nomenclature: ID<refundID>-<Supplier>-<billNo>.<ext>
+  var newName = 'ID' + refundID + '-' + supplier + billNo;
   // Get file extension
   var pos = fileName.lastIndexOf('.');
   var ext = '';

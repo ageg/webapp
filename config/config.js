@@ -59,9 +59,12 @@ config.standards = {
     cip: /^([a-z]{4}\d{4})$/i,
     dept: /^((?:Biotechnologique|Chimique|Civil|Électrique|Informatique|Mécanique))$/i,
     email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
+    longText: /^((?:\w?\s?\n?)+)$/i,
     name: /^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\-\'\ \.]+)$/i,
+    number: /^(\d+)$/,
     phone: /^([\d]?[\(\ \-]?[\d]{3}[\)\ \-]?[\d]{3}[\ \-]?[\d]{4})$/,
     promo: /^(\d{2,})$/,
+    text: /^((?:\w?\p{Z}?\'?\-?)+)$/i,
     uname: /^((?!\d{2}\s?\d{3}\s?\d{3}|\w{4}\d{4})(?:|ageg\\\w+|\w+\@ageg\.local\.?))$/i
   },
   htmlRegExes: {
