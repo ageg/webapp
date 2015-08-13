@@ -44,7 +44,7 @@ var RefundSchema = new Schema({
     //match: config.standards.regExes.text,
     type: String
   },
-  submit_date: Date,
+  submitDate: Date,
   status: Number,
   total: Number
 });

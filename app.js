@@ -3,8 +3,10 @@ var bodyParser = require('body-parser');
 var config = require('./config/config');
 var ejsLayouts = require("express-ejs-layouts");
 var express = require('express');
-var mongoose = require("mongoose");
 var https = require('https'); // use HTTPS Server
+var mongoose = require("mongoose");
+var multer = require("multer");
+var upload = multer({dest: 'uploads/'});
 var url = require('url'); // URL parsing library
 var User = mongoose.model('User');
 
@@ -21,7 +23,10 @@ var session = require('express-session');
 app.use(session(config.session));
 
 // Required to parse post request
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '10MB'
+}));
 app.use(bodyParser.json());
 
 // Middleware to send user info to layout

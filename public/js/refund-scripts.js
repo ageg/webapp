@@ -1,4 +1,4 @@
-var refundsApp = angular.module('refundsApp', ['ngRoute']);
+var refundsApp = angular.module('refundsApp', ['ngRoute', 'flow']);
 var xhr = new XMLHttpRequest();
 
 refundsApp.controller('refundsCtrl',['$scope', '$http', function($scope,$http){
@@ -72,8 +72,24 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
     });
     $scope.saveRequest();
   };
-  //$scope.fileUploader = new FileUploader();
-  //$scope.upload = upload();
+  $scope.reqSubmit = function () {
+    console.log('Form Submit Sent');
+    $scope.refundInfo.submitDate = Date.now();
+    console.log('Date: '+$scope.refundInfo.submitDate);
+    $scope.saveRequest();
+  };
+  $scope.upload = function (fieldID) {
+    console.log($("#"+fieldID));
+    upload(fieldID, $routeParams.id);
+  };
+  $scope.uploadFile = function(fieldID) {
+    $http({
+      data: $.param($scope.formData),
+      method: 'POST',
+      url: '/uploads/refunds',
+      
+    });
+  };
 }]);
 
 refundsApp.config(['$routeProvider', function ($routeProvider) {
@@ -90,6 +106,21 @@ refundsApp.config(['$routeProvider', function ($routeProvider) {
   });
 }]);
 
+refundsApp.config(['flowFactoryProvider', function (flowFactoryProvider) {
+  flowFactoryProvider.defaults = {
+    target: 'upload.php',
+    permanentErrors: [404, 500, 501],
+    maxChunkRetries: 1,
+    chunkRetryInterval: 5000,
+    simultaneousUploads: 4
+  };
+  flowFactoryProvider.on('catchAll', function (event) {
+    console.log('catchAll', arguments);
+  });
+  // Can be used with different implementations of Flow.js
+  // flowFactoryProvider.factory = fustyFlowFactory;
+}]);
+
 refundsApp.filter('sumOfBills', function(){
   return function (data, key) {
     if (typeof (data) === 'undefined' || typeof (key) === 'undefined') {
@@ -104,8 +135,8 @@ refundsApp.filter('sumOfBills', function(){
   }
 });
 
-function upload(fileID){
-  var file = $("#fileID");
+function upload(fileID, reqID){
+  var file = $("#"+fileID)[0]; // Use only the first file from the array
   if (typeof file.files === 'undefined')
   {
     
@@ -116,24 +147,23 @@ function upload(fileID){
     var fileBuffer = reader.readAsBinaryString(file.files[0]);
     
     reader.onloadend = function () {
-      var jssha = new jsSHA(reader.result,"BYTES");
-      md = jssha.getHash("SHA-512","HEX");
+      var jssha = new jsSHA("SHA-512","BYTES");
+      jssha.update(reader.result);
+      md = jssha.getHash("HEX");
       file.innerHTML = md;
       
       $.ajax({
+        data: reader.result,
         headers: {
           'X-File-Name': file.files[0].name,
           'X-File-Size': file.files[0].size,
-          'X-File-SHA512SUM': md
+          'X-File-SHA512SUM': md,
+          'X-Req-BillID':fileID.slice(4),
+          'X-Req-ID': reqID
         },
         method: 'POST',
-        url: '/refunds/uploads'
+        url: '/uploads/refunds'
       });
-      /*xhr.open('put', '/refunds/uploads', true);
-      xhr.setRequestHeader("X-File-Name", file.files[0].name);
-      xhr.setRequestHeader("X-File-Size", file.files[0].size);
-      xhr.setRequestHeader("X-File-SHA512SUM", md);
-      xhr.send(file.files[0]);*/
     }
   }
 }

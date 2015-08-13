@@ -9,7 +9,7 @@
   <!--<div ng-app="refundsApp" ng-controller="refundsCtrl">-->
   <div>
     <table class="table table-striped">
-      <caption>Demandes en cours de rédaction</caption>
+      <caption>Mes demandes en cours de rédaction</caption>
       <thead>
         <tr>
           <th>ID</th>
@@ -42,24 +42,28 @@
       </tfoot>
     </table>
     <!--<h1>Demandes en attente de révision</h1>-->
-    <table>
-      <caption>Demandes en attente de révision</caption>
+    <table class="table table-striped">
+      <caption>Mes demandes en attente de révision</caption>
       <thead>
         <tr>
           <th>ID</th>
           <th>Référence</th>
           <th>Catégorie</th>
+          <th>Factures</th>
           <th>Total ($)</th>
           <th>Notes</th>
+          <th>Date Soumise</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="entry in refundList">
+        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
           <td>{{ entry.refundID }}</td>
           <td>{{ entry.reference }}</td>
           <td>{{ entry.category }}</td>
-          <td>{{ entry.total }}</td>
+          <td>{{ entry.billCount }}</td>
+          <td>{{ entry.total | currency}}</td>
           <td>{{ entry.notes }}</td>
+          <td>{{ entry.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
         </tr>
       </tbody>
       <tfoot>
@@ -67,30 +71,36 @@
           <th>ID</th>
           <th>Référence</th>
           <th>Catégorie</th>
+          <th>Factures</th>
           <th>Total ($)</th>
           <th>Notes</th>
+          <th>Date Soumise</th>
         </tr>
       </tfoot>
     </table>
     <!--<h1>Demandes archivées</h1>-->
-    <table>
-      <caption>Demandes archivées</caption>
+    <table class="table table-striped">
+      <caption>Mes demandes archivées</caption>
       <thead>
         <tr>
           <th>ID</th>
           <th>Référence</th>
           <th>Catégorie</th>
+          <th>Factures</th>
           <th>Total ($)</th>
           <th>Notes</th>
+          <th>Date Soumise</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="entry in refundList">
+        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
           <td>{{ entry.refundID }}</td>
           <td>{{ entry.reference }}</td>
           <td>{{ entry.category }}</td>
-          <td>{{ entry.total }}</td>
+          <td>{{ entry.billCount }}</td>
+          <td>{{ entry.total | currency}}</td>
           <td>{{ entry.notes }}</td>
+          <td>{{ entry.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
         </tr>
       </tbody>
       <tfoot>
@@ -98,15 +108,17 @@
           <th>ID</th>
           <th>Référence</th>
           <th>Catégorie</th>
+          <th>Factures</th>
           <th>Total ($)</th>
           <th>Notes</th>
+          <th>Date Soumise</th>
         </tr>
       </tfoot>
     </table>
   </div>
 </script>
 <script id="/details.html" type="text/ng-template">
-  <form role="form" action="/refunds" enctype="multipart/form-data" method="post" id="refundform" name="refundform">
+  <form role="form" enctype="multipart/form-data" method="post" id="refundform" name="refundform" ng-submit="reqSubmit()">
     <fieldset>
       <legend>Demandeur:</legend>
       <input type="text" class="form-control" id="cip" name="cip" ng-model="refundInfo.cip" placeholder="AGEG1337" readonly required>
@@ -132,8 +144,11 @@
         <label for="notes">Notes</label>
         <textarea class="form-control" id="notes" name="notes" ng-model="refundInfo.notes" placeholder="Notes sur la demande" rows="4"></textarea>
       </div>
+      <div class="form-group">
+        <label for="submitDate">Date de Soumission</label>
+        <output id="submitDate" name="submitDate" ng-disabled="!refundInfo.submitDate">{{refundInfo.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</output>
+      </div>
     </fieldset>
-    <!-- List Bills Here! -->
     <fieldset ng-repeat="bill in refundInfo.bills">
       <legend>Facture #{{ bill.billID}}</legend>
       <div class="form-group">
@@ -146,7 +161,7 @@
       </div>
       <div class="form-group">
         <label for='bill{{ bill.billID }}'>Facture</label>
-        <input accept="image/*|application/pdf" class="form-control" id="bill{{ bill.billID }}" name="bill{{ bill.billID }}" type="file" onchange="upload(this.id);">
+        <input accept="image/*|application/pdf" class="form-control" id="bill{{ bill.billID }}" name="bill{{ bill.billID }}" type="file" onchange="angular.element(this).scope().upload(this.id);">
       </div>
       <div class="form-group">
         <label for='note{{ bill.billID }}'>Notes</label>

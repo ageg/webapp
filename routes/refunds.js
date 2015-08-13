@@ -6,8 +6,10 @@ var express = require('express');
 var fs = require('fs');
 var idRegEx = /\d+/;
 var mongoose = require("mongoose");
+var multer = require('multer');
 var Refund = mongoose.model('Refunds');
 var router = express.Router();
+var upload = multer({ dest: 'uploads/'});
 var url = require('url');
 
 var refundStatus = {
@@ -63,7 +65,7 @@ router.get('/refunds', function(req, res) {
     notes: true,
     reference: true,
     refundID: true,
-    submit_date: true,
+    submitDate: true,
     status: true,
     total: true
   }, function (err, entries) {
@@ -229,11 +231,11 @@ router.get('/refunds/uploads/:fileName', function(req, res) {
   });
 });
 
-router.post('/refunds/uploads', function(req,res) {
+router.post('/uploads/refunds', upload.single('file'), function(req,res) {
   /***
    * Upload New File
    **/
-  
+  console.log("POST on /refunds/uploads");
   if (config.devOptions.verboseDebug) {
     console.log(req.headers);
   }
@@ -242,14 +244,16 @@ router.post('/refunds/uploads', function(req,res) {
     res.sendStatus(401);
     return;
   }
+  res.sendStatus(202);
+  console.log(req);
   
-  var fileName = req.headers['x-file-name'];
+  /*var fileName = req.headers['x-file-name'];
   if (!fileName) {
     res.status(400);
     res.send(JSON.stringify({error: "No name specified."}));
     return;
   }
-  var size = parseInt(req.headers['content-length'], 10);
+  var size = parseInt(req.headers['x-file-size'], 10);
   if (!size || size < 0) {
     res.status(400);
     res.send(JSON.stringify({error: "No size specified."}));
@@ -257,7 +261,7 @@ router.post('/refunds/uploads', function(req,res) {
   }
   
   // TODO: Create renamed file
-  var filePath = config.refundOptions.uploadDir+'/'+buildUploadedFileName(req.session.userInfo, fileName);
+  var filePath = config.refundOptions.uploadDir+'/'+buildUploadedFileName(req.headers['x-req-id'], '', req.headers['x-req-billid'], fileName);
   var file = fs.createWriteStream(filePath, {
     flags: 'w',
     encoding: 'binary',
@@ -265,15 +269,15 @@ router.post('/refunds/uploads', function(req,res) {
   });
   
   var hash = crypto.createHash('sha512').setEncoding('hex');
+  var buff = new Buffer(req.body);
+  console.log(Buffer.isBuffer(req.body) + '\t' + buff.length);
+  hash.end(buff);
+  console.log(file.end(buff, function() {
+    console.log('Writing of ' + filePath + ' completed.');
+  }));
   
-  req.on('data', function(chunk) {
-    file.write(chunk);
-    hash.write(chunk);
-    // TODO: measure elapsed time to help ward off attacks?
-  });
-  
-  req.on('end', function() {
-    file.end();
+  hash.on('finish', function() {
+    console.log('hash.drain Invoked');
     hash.end();
     var md = hash.read();
     if (md.toLowerCase().localeCompare(req.headers['x-file-sha512sum'].toLowerCase()) === 0) {
@@ -283,6 +287,7 @@ router.post('/refunds/uploads', function(req,res) {
         fileHash: md,
         success: true
       }));
+      console.log(hash.read());
     } else {
       // Hash compare failed, request reupload
       res.status(400);
@@ -291,23 +296,30 @@ router.post('/refunds/uploads', function(req,res) {
         fileHash: md,
         success: false
       }));
+      console.log(req.headers['x-file-name']+': Hash Compare Failed\nAway:\t\t'+req.headers['x-file-sha512sum']+'\nNewline:\t'+md+'\n\t\t\t'+hash.read());
       // TODO: remove old file
     }
-  });
+    file.on('finish', function() {
+      console.log(filePath + " is complete.");
+    });
+  });*/
 });
 
 router.post('/refunds/uploads/:id', function(req, res) {
   // POST Method is Forbidden for Uploads
+	console.log("Attempted POST ON /refunds/uploads/"+req.params.id);
   res.sendStatus(403);
 });
 
 router.put('/refunds/uploads', function(req, res) {
-  // POST Method is Forbidden for Uploads
+  // PUT Method is Forbidden for Uploads
+  console.log("Attempted PUT on /refunds/uploads");
   res.sendStatus(403);
 });
 
 router.put('/refunds/uploads/:id', function(req, res){
-  // TODO: Aser AuthZ
+  console.log("Attempted PUT on /refunds/uploads/"+req.params.id);
+  // TODO: User AuthZ
   // TODO: Update a specific file
 });
 
@@ -321,9 +333,9 @@ router.delete('refunds/uploads/:id', function(req, res) {
   // TODO: Delete Specific file
 });
 
-function buildUploadedFileName(refundID, billID, supplier, fileName) {
+function buildUploadedFileName(refundID, supplier, billID, fileName) {
   // VPAF Requested nomenclature: ID<refundID>-<Supplier>-<billNo>.<ext>
-  var newName = 'ID' + refundID + '-' + supplier + billNo;
+  var newName = 'ID' + refundID + '-' + supplier + '-' + billID;
   // Get file extension
   var pos = fileName.lastIndexOf('.');
   var ext = '';
