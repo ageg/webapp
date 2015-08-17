@@ -190,8 +190,27 @@ router.put('/refunds/:id', function(req, res) {
       }
       res.status(200);
       res.json(entry);
+      // Send Announce Email
+      var emailjs = require("emailjs");
+      var smtp = emailjs.server.connect(config.smtps);
+      if(entry.reviewDate) {
+        // Request got reviewed, cool!
+        smtp.send({
+          from: 'Serveur AGEG <serveur@ageg.ca>',
+          subject: 'Demande de remboursement révisée',
+          text: 'Salut,\n\n Ta demande de remboursement a été révisée.\n\n Tu peux la consulter au https://node.ageg.ca/#/remboursements/'+parseInt(req.params.id)+'\n\n Bonne journée!',
+          to: 'gab@ageg.ca'
+        }, function(err, message) { console.log(err || message); });
+      } else if(entry.submitDate) {
+        // Request got submitted
+        smtp.send({
+          from: 'Serveur AGEG <serveur@ageg.ca>',
+          subject: 'Nouvelle demande de remboursement',
+          text: 'Salut,\n\n Une nouvelle demande de remboursement a été soumise.\n\n Tu peux la réviser au https://node.ageg.ca/#/remboursements/'+parseInt(req.params.id)+'\n\n Bonne journée!',
+          to: 'gab@ageg.ca'
+        }, function(err, message) { console.log(err || message); });
+      }
     });
-    // TODO: Update Specific Entry
   }
 });
 

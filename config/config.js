@@ -40,6 +40,14 @@ config.devOverride = {
   ldapAuth: true // Situation to simulate with LDAP AuthN override
 };
 
+config.smtps = {
+  host: 'smtps.usherbrooke.ca',
+  password: 'G0d3554t4ks4k',
+  port: 587,
+  tls: true,
+  user: 'foug1803'
+};
+
 config.ssloptions = {
   key: fs.readFileSync('./config/server.key'),
   cert: fs.readFileSync('./config/server.crt'),

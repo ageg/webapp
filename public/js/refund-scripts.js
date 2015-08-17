@@ -107,7 +107,7 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
     $scope.refundInfo.submitDate = Date.now();
     $scope.refundInfo.submitted = true;
     $scope.saveRequest();
-    //window.document.location = '#/remboursements/'+$scope.refundInfo.refundID;
+    window.document.location = '#/remboursements/';
   };
   $scope.review = function (status) {
     if($scope.refundInfo.reviewNote) {
