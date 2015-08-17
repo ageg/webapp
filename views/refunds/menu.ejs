@@ -13,6 +13,7 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
@@ -21,8 +22,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
+        <tr ng-repeat="entry in refundList | filter : {submitDate: undefined} | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
           <td>{{ entry.refundID }}</td>
+          <td>{{ entry.cip }}</td>
           <td>{{ entry.reference }}</td>
           <td>{{ entry.category }}</td>
           <td>{{ entry.billCount }}</td>
@@ -33,6 +35,7 @@
       <tfoot>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
@@ -47,33 +50,33 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
           <th>Total ($)</th>
-          <th>Notes</th>
           <th>Date Soumise</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
+        <tr ng-repeat="entry in refundList | filter: {submitDate: '2', status: undefined} | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
           <td>{{ entry.refundID }}</td>
+          <td>{{ entry.cip }}</td>
           <td>{{ entry.reference }}</td>
           <td>{{ entry.category }}</td>
           <td>{{ entry.billCount }}</td>
           <td>{{ entry.total | currency}}</td>
-          <td>{{ entry.notes }}</td>
           <td>{{ entry.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
         </tr>
       </tbody>
       <tfoot>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
           <th>Total ($)</th>
-          <th>Notes</th>
           <th>Date Soumise</th>
         </tr>
       </tfoot>
@@ -84,34 +87,37 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
           <th>Total ($)</th>
-          <th>Notes</th>
-          <th>Date Soumise</th>
+          <th>Décision</th>
+          <th>Date Traitée</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="entry in refundList | orderBy: 'refundID'" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
+        <tr ng-repeat="entry in refundList | filter: {reviewDate: '2'} | orderBy: 'refundID'" ng-class="archiveColor(entry.status);" ng-click="redirectTo('#/remboursements/'+entry.refundID)">
           <td>{{ entry.refundID }}</td>
+          <td>{{ entry.cip }}</td>
           <td>{{ entry.reference }}</td>
           <td>{{ entry.category }}</td>
           <td>{{ entry.billCount }}</td>
           <td>{{ entry.total | currency}}</td>
-          <td>{{ entry.notes }}</td>
-          <td>{{ entry.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+          <td>{{ archiveDecision(entry.status) }}</td>
+          <td>{{ entry.reviewDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
         </tr>
       </tbody>
       <tfoot>
         <tr>
           <th>ID</th>
+          <th>Demandeur</th>
           <th>Référence</th>
           <th>Catégorie</th>
           <th>Factures</th>
           <th>Total ($)</th>
-          <th>Notes</th>
-          <th>Date Soumise</th>
+          <th>Décision</th>
+          <th>Date Traitée</th>
         </tr>
       </tfoot>
     </table>
@@ -129,11 +135,11 @@
       <input type="hidden" class="form-control" id="billCount" name="billCount" ng-model="refundInfo.billCount">
       <div class="form-group">
         <label for="reference">Référence</label>
-        <input type="text" class="form-control" id="reference" name="reference" ng-model="refundInfo.reference" placeholder="Description de la demande" required>
+        <input type="text" class="form-control" id="reference" name="reference" ng-disabled="refundInfo.submitted" ng-model="refundInfo.reference" placeholder="Description de la demande" required>
       </div>
       <div class="form-group">
         <label for="cateremboursements/gory">Catégorie budgétaire</label>
-        <input type="text" class="form-control" id="category" name="category" ng-model="refundInfo.category" placeholder="Catégorie Budgétaire" required>
+        <input type="text" class="form-control" id="category" name="category" ng-disabled="refundInfo.submitted" ng-model="refundInfo.category" placeholder="Catégorie Budgétaire" required>
       </div>
       <div class="form-group">
         <label for="total">Total</label>
@@ -142,36 +148,65 @@
       </div>
       <div class="form-group">
         <label for="notes">Notes</label>
-        <textarea class="form-control" id="notes" name="notes" ng-model="refundInfo.notes" placeholder="Notes sur la demande" rows="4"></textarea>
+        <textarea class="form-control" id="notes" name="notes" ng-disabled="refundInfo.submitted" ng-model="refundInfo.notes" placeholder="Notes sur la demande" rows="4"></textarea>
       </div>
-      <div class="form-group">
+      <div class="form-group" ng-show="refundInfo.submitDate">
         <label for="submitDate">Date de Soumission</label>
-        <output id="submitDate" name="submitDate" ng-disabled="!refundInfo.submitDate">{{refundInfo.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</output>
+        <output id="submitDate" name="submitDate" ng-disabled="true">{{refundInfo.submitDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</output>
+      </div>
+      <div class="form-group" ng-show="refundInfo.reviewDate">
+        <label for="reviewDate">Date de Révision</label>
+        <output id="reviewDate" name="reviewDate" ng-disabled="true">{{refundInfo.reviewDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</output>
       </div>
     </fieldset>
     <fieldset ng-repeat="bill in refundInfo.bills">
       <legend>Facture #{{ bill.billID}}</legend>
       <div class="form-group">
         <label for='supplier{{ bill.billID }}'>Fournisseur</label>
-        <input class="form-control" id='supplier{{  billNo }}' name='supplier{{ billNo }}' ng-model="bill.supplier" type='text' required>
+        <input class="form-control" id='supplier{{  billNo }}' name='supplier{{ billNo }}' ng-disabled="refundInfo.submitted" ng-model="bill.supplier" type='text' required>
       </div>
       <div class="form-group">
         <label for='value{{ billNo }}'>Montant</label>
-        <input class="form-control" id="value{{ bill.billID }}" type='number' name='value{{ bill.billID }}' ng-model="bill.value" step='0.01' required>
+        <input class="form-control" id="value{{ bill.billID }}" type='number' name='value{{ bill.billID }}' ng-disabled="refundInfo.submitted" ng-model="bill.value" step='0.01' required>
       </div>
       <div class="form-group">
         <label for='bill{{ bill.billID }}'>Facture</label>
-        <input accept="image/*|application/pdf" class="form-control" id="bill{{ bill.billID }}" name="bill{{ bill.billID }}" type="file" onchange="angular.element(this).scope().upload(this.id);">
+        <input accept="image/*|application/pdf" class="form-control" id="bill{{ bill.billID }}" name="bill{{ bill.billID }}" ng-disabled="refundInfo.submitted" type="file" onchange="angular.element(this).scope().upload(this.id);">
       </div>
       <div class="form-group">
         <label for='note{{ bill.billID }}'>Notes</label>
-        <textarea class="form-control" id="note{{ bill.billID }}" name="note{{ bill.billID }}" ng-model="bill.notes" placeholder="Notes sur la facture" rows="4"></textarea>
+        <textarea class="form-control" id="note{{ bill.billID }}" name="note{{ bill.billID }}" ng-disabled="refundInfo.submitted" ng-model="bill.notes" placeholder="Notes sur la facture" rows="4"></textarea>
       </div>
     </fieldset>
     <hr id="marker">
-    <button type="button" class="btn btn-default" name="add" ng-click="addBill()">Ajouter une facture</button>
-    <button type="button" class="btn btn-default" name="save" ng-Click="saveRequest();">Sauvegarder la demande</buttton>
-    <button type="submit" class="btn btn-default" name="submit">Soumettre la demande</button>
+    <div class="btn-group btn-group-justified" ng-if="!refundInfo.submitted">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" name="add" ng-click="addBill()">Ajouter une facture</button>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" name="save" ng-Click="saveRequest();">Sauvegarder la demande</buttton>
+      </div>
+      <div class="btn-group">
+        <button type="submit" class="btn btn-success" name="submit">Soumettre la demande</button>
+      </div>
+    </div>
+    <fieldset ng-if="refundInfo.submitted">
+      <div class="form-group" ng-class="refundInfo.reviewError">
+        <label for="reviewNote">Notes de la Révision</label>
+        <textarea class="form-control" id="reviewNote" name="reviewNote" ng-disabled="refundInfo.archive" ng-model="refundInfo.reviewNote" placeholder="Notes de la révision"></textarea>
+      </div>
+      <div class="btn-group btn-group-justified" ng-if="refundInfo.submitted && !refundInfo.archive">
+        <div class="btn-group">
+          <button type="button" class="btn btn-success" id="grant" name="grant" ng-Click="grant();">Accepter la demande</button>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-warning" id="partial" name="partial" ng-Click="partial();">Accepter partiellement la demande</buttton>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default" id="deny" name="deny" ng-click="deny();">Refuser la demande</button>
+        </div>
+      </div>
+    </fieldset>
   </form>
 </script>
 <script type='application/javascript' src="/js/refund-scripts.js"></script>

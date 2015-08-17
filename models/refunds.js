@@ -44,8 +44,16 @@ var RefundSchema = new Schema({
     //match: config.standards.regExes.text,
     type: String
   },
+  reviewDate: Date,
+  reviewer: String,
+  reviewNote: String,
   submitDate: Date,
-  status: Number,
+  /**
+  * 0 - Denied
+  * 1 - Partly Granted
+  * 2 - Granted
+  **/
+  status: Number, 
   total: Number
 });
 

@@ -31,6 +31,40 @@ refundsApp.controller('refundsCtrl',['$scope', '$http', function($scope,$http){
       window.document.location = '#/remboursements/'+data.refund.refundID;
     });
   };
+  $scope.archiveColor = function(status) {
+    var rowClass = "";
+    switch(status) {
+      case 0:
+        rowClass = "danger";
+        break;
+      case 1:
+        rowClass = "warning";
+        break;
+      case 2:
+        rowClass = "success";
+        break;
+      default:
+        break;
+    }
+    return rowClass;
+  };
+  $scope.archiveDecision = function (status) {
+    var rowStatus = "";
+    switch (status) {
+      case 0:
+        rowStatus = "Refusée";
+        break;
+      case 1:
+        rowStatus = "TODO";
+        break;
+      case 2:
+        rowStatus = "Acceptée";
+        break;
+      default:
+        break;
+    }
+    return rowStatus;
+  };
 }]);
 
 refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
@@ -40,22 +74,12 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
   }).success(function(data, status, headers, config) {
     console.log('Detailed data: ', data );
     $scope.refundInfo = data;
+    $scope.refundInfo.archive = $scope.refundInfo.reviewDate;
+    // TODO: User Admin Management
+    $scope.refundInfo.submitted = $scope.refundInfo.submitDate;
   }).error(function(data, status, headers, config) {
     console.log('Oops and error', data);
   });
-  $scope.saveRequest = function() {
-    console.log($scope.refundInfo);
-    $http({
-      data: $scope.refundInfo,
-      method: 'PUT',
-      url: '/refunds/'+$routeParams.id
-    }).success(function(data, status, headers, config) {
-      console.log('Detailed data: ', data );
-      $scope.refundInfo = data;
-    }).error(function(data, status, headers, config) {
-      console.log('Oops and error', data);
-    });
-  };
   $scope.addBill = function() {
     if (!$scope.refundInfo.bills) {
       $scope.refundInfo.bills = [];
@@ -72,11 +96,46 @@ refundsApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', fu
     });
     $scope.saveRequest();
   };
+  $scope.deny = function () {
+    $scope.review(0);
+  };
+  $scope.grant = function () {
+    $scope.review(2);
+  };
   $scope.reqSubmit = function () {
     console.log('Form Submit Sent');
     $scope.refundInfo.submitDate = Date.now();
-    console.log('Date: '+$scope.refundInfo.submitDate);
+    $scope.refundInfo.submitted = true;
     $scope.saveRequest();
+    //window.document.location = '#/remboursements/'+$scope.refundInfo.refundID;
+  };
+  $scope.review = function (status) {
+    if($scope.refundInfo.reviewNote) {
+      // Review Note supplied
+      $scope.refundInfo.reviewError = "";
+      //$scope.refundInfo.reviewer = 
+      $scope.refundInfo.reviewDate = Date.now();
+      $scope.refundInfo.status = status;
+      $scope.refundInfo.archive = true;
+      $scope.saveRequest();
+      window.document.location = '#/remboursements/';
+    } else {
+      // Review Note not supplied, abort!
+      $scope.refundInfo.reviewError = "has-error has-feedback";
+      alert("La révision n'a pas laissé de note.");
+    }
+  };
+  $scope.saveRequest = function() {
+    $http({
+      data: $scope.refundInfo,
+      method: 'PUT',
+      url: '/refunds/'+$routeParams.id
+    }).success(function(data, status, headers, config) {
+      console.log('Detailed data: ', data );
+      $scope.refundInfo = data;
+    }).error(function(data, status, headers, config) {
+      console.log('Oops and error', data);
+    });
   };
   $scope.upload = function (fieldID) {
     console.log($("#"+fieldID));
@@ -127,7 +186,7 @@ refundsApp.filter('sumOfBills', function(){
       return 0;
     }
     var sum = 0;
-    console.log(data);
+    //console.log(data);
     for (var i = 0; i < data.length; i++) {
       sum = sum + data[i][key];
     }

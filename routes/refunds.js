@@ -65,6 +65,7 @@ router.get('/refunds', function(req, res) {
     notes: true,
     reference: true,
     refundID: true,
+    reviewDate: true,
     submitDate: true,
     status: true,
     total: true
