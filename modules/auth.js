@@ -38,16 +38,18 @@ adminRights = {
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
-  service_url : 'https://localhost:8443'
+  service_url : 'https://localhost:8443',
+  // Based on a tweaked version of CASAuthentication, pull request is active, should be merged soon.
+  session_info: 'cas_userinfo'
 });
 
 setSessionUserInfo = function (req, callback) {
   var cip = req.session[cas.session_name];
+  console.log(req.session);
   User.findOne({ cip: cip }, function (err, obj) {
     if (obj) {
       req.session.userInfo = obj;
     }
-    
     callback();
   });
 }
