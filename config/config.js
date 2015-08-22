@@ -42,7 +42,7 @@ config.devOverride = {
 
 config.smtps = {
   host: 'smtps.usherbrooke.ca',
-  password: 'G0d3554t4ks4k',
+  password: 'meh!',
   port: 587,
   tls: true,
   user: 'foug1803'

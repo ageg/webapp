@@ -61,8 +61,6 @@ app.post('/addUser', add_user);
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
 app.use('/', require('./routes/bandana.js'));
-app.use('/', require('./routes/profile.js'));
-app.use('/', require('./routes/refunds.js'));
 app.use('/', require('./routes/user.js'));
 
 // Start the server after the db connection
