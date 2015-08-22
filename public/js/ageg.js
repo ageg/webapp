@@ -16,14 +16,25 @@ agegApp.controller('agegHeader',['$scope', '$http', function($scope, $http) {
   };
 }]);
 
-agegApp.controller('profileCtrl',['$http', '$routeParams', '$scope', function($http, $routeParams, $scope) {
+agegApp.controller('profileCtrl',['$http', '$route', '$routeParams', '$scope', function($http, $route, $routeParams, $scope) {
   $http({
     method: 'GET',
     url: '/user'
   }).then(function(response) {
-    console.log(response);
     $scope.userInfo = response.data;
   });
+  $scope.profileSubmit = function () {
+    $http({
+      data: $scope.userInfo,
+      method: 'PUT',
+      url: '/user/'
+    }).then(function(data, status, headers, config) {
+      $scope.refundInfo = data;
+      $route.reload();
+    },function(data, status, headers, config) {
+      console.log('Oops and error', data);
+    });
+  };
 }]);
 
 agegApp.config(['$routeProvider', function ($routeProvider) {
