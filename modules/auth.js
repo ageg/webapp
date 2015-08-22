@@ -45,7 +45,6 @@ var cas = new CASAuthentication({
 
 setSessionUserInfo = function (req, callback) {
   var cip = req.session[cas.session_name];
-  console.log(req.session);
   User.findOne({ cip: cip }, function (err, obj) {
     if (obj) {
       req.session.userInfo = obj;

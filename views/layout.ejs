@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="refundsApp">
+<html ng-app="agegApp">
 <head>
   <meta charset="UTF-8">
   <title>AGEG</title>
@@ -23,7 +23,7 @@
 <body class="container">
   <header>
     <nav class="navbar navbar-default" role="navigation">
-      <div class="container-fluid">
+      <div class="container-fluid" ng-controller="agegHeader">
         <div class="navbar-header">
           <a class="navbar-brand" href="#">
             <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
@@ -33,7 +33,7 @@
           <ul class="nav navbar-nav">
             <li><a href="/">Index</a></li>
             <li><a href="/add_location">Locations</a></li>
-            <li><a href="/#/remboursements/">Remboursements</a></li>
+            <li><a href="/remboursements/">Remboursements</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Bandana</a>
               <ul class="dropdown-menu" role="menu">
@@ -43,20 +43,9 @@
                 <% } %>
               </ul>
             </li>
-          <% if(typeof userInfo == 'undefined') { %>
-            <li><a href="/login">Connexion</a></li>
-          <% } else {%>
-            <% if(userInfo.rights == adminRights.ADMIN){ %>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin</a>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="/admin/access">Manage access rights</a></li>
-                </ul>
-              </li>
-            <% } %>
-            <li><a href="/profile"><%= userInfo.cip %></a></li>
-            <li><a href="/logout">Déconnexion</a></li>
-          <% } %>
+            <li ng-if="!connected()"><a href="/login">Connexion</a></li>
+            <li ng-if="connected()"><a href="#/profil">Profil</a></li>
+            <li ng-if="connected()"><a href="/logout">Déconnexion</a></li>
           </ul>
         </div>
       </nav>
@@ -67,7 +56,8 @@
   </main>
 
   <footer>
-    <p class="text-center text-muted"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a></p>
+    <hr/><p class="text-center text-muted"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a></p>
   </footer>
 </body>
 </html>
+<script type="application/javascript" src="/js/ageg.js"></script>

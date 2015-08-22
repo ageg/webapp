@@ -8,7 +8,11 @@ var mongoose = require("mongoose");
 var router = express.Router();
 var User = mongoose.model('User');
 
-router.get('/profile', auth.bounce, function(req, res) {
+router.get('/profil', auth.bounce, function(req,res) {
+  res.render('profile');
+});
+
+/*router.get('/profile', auth.bounce, function(req, res) {
   console.log('GET: ');
   console.log(req.session.userInfo);
   res.render('profile', {
@@ -16,7 +20,7 @@ router.get('/profile', auth.bounce, function(req, res) {
     userInfo: req.session.userInfo,
     regExes: config.standards.htmlRegExes
   });
-});
+});*/
 
 router.post('/profile', auth.bounce, function(req, res) {
   var infos = req.body;
