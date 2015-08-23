@@ -43,25 +43,8 @@ router.get('/user', function(req, res) {
       __v: false,
       _id: false
     }, function (err, obj) {
-      if (obj) {
-      tmp = obj;
-      } else {
-        var user = new User({
-          cip: req.session.cas_user,
-          prenom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.prenom : '',
-          nom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.nomfamille : '',
-          email: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.courriel : '',
-          rights: auth.adminRights.NONE,
-          ageguname: ''
-        }).save(function (err) {
-          if (err) {
-            throw err;
-          } else {
-            tmp = user;
-          }
-        });
-      }
-      res.json(tmp);
+      if (err) throw err;
+      res.json(obj);
     });
   }
 });
