@@ -56,16 +56,28 @@ setSessionUserInfo = function (req, callback) {
 check = function (req, res, next) {
   if (!req.session.userInfo) {
     var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
+    User.findOne({ cip: cip },{
+      __v: false,
+      _id: false
+    }, function (err, obj) {
       if (!obj) {
-        // Create blank session info for AJAX
-        req.session.userInfo = createBlankUser(cip);
-        res.render("profile", {
-          depts: depts,
-          userInfo: req.session.userInfo,
-          regExes: config.standards.htmlRegExes
+        // Create new user info from CAS info
+        var user = new User({
+          cip: req.session.cas_user,
+          prenom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.prenom : '',
+          nom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.nomfamille : '',
+          email: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.courriel : '',
+          rights: auth.adminRights.NONE,
+          ageguname: ''
+        }).save(function (err) {
+          if (err){
+            throw err;
+          } else {
+            setSessionUserInfo(req, function () {
+              next();
+            });
+          }
         });
-        //res.render("add_user", { cip: cip });
       } else {
         setSessionUserInfo(req, function () {
           next();
@@ -122,19 +134,4 @@ module.exports = {
   allow_admin: allow_admin,
   cas: cas,
   setSessionUserInfo: setSessionUserInfo
-}
-
-function createBlankUser(cip) {
-  var blank = new User({
-    ageguname: '',
-    cip: cip,
-    prenom: '',
-    nom: '',
-    email: '',
-    concentration: '',
-    phone: '',
-    promo: 0,
-    rights: 0
-  });
-  return blank;
 }
