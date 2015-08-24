@@ -25,6 +25,10 @@ var mongoose = require("mongoose");
 require('../models/user.js');
 var User = mongoose.model('User');
 
+// Configuration Values
+var config = require('../config/config.js');
+var depts = require('../models/depts.js');
+
 adminRights = {
   NONE: 0,
   BANDANA: 1,
@@ -34,7 +38,9 @@ adminRights = {
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
-  service_url : 'https://localhost:' + ('8443')
+  service_url : 'https://localhost:8443',
+  // Based on a tweaked version of CASAuthentication, pull request is active, should be merged soon.
+  session_info: 'cas_userinfo'
 });
 
 setSessionUserInfo = function (req, callback) {
@@ -43,7 +49,6 @@ setSessionUserInfo = function (req, callback) {
     if (obj) {
       req.session.userInfo = obj;
     }
-    
     callback();
   });
 }
@@ -51,9 +56,26 @@ setSessionUserInfo = function (req, callback) {
 check = function (req, res, next) {
   if (!req.session.userInfo) {
     var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
+    User.findOne({ cip: cip },{
+      __v: false,
+      _id: false
+    }, function (err, obj) {
       if (!obj) {
-        res.render("add_user", { cip: cip });
+        // Create new user info from CAS info
+        var user = new User({
+          cip: req.session.cas_user,
+          prenom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.prenom : '',
+          nom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.nomfamille : '',
+          email: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.courriel : '',
+          rights: adminRights.NONE,
+          ageguname: ''
+        });
+        user.save(function (err) {
+          if (err) throw err;
+          setSessionUserInfo(req, function () {
+            next();
+          });
+        });
       } else {
         setSessionUserInfo(req, function () {
           next();
@@ -111,39 +133,3 @@ module.exports = {
   cas: cas,
   setSessionUserInfo: setSessionUserInfo
 }
-
-/*
- 
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/login', auth.bounce, function (req, res) {
-    res.redirect('/');
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated.
-app.get('/firstLogin', auth.bounceWOCheck, function (req, res) {
-    res.json({ success: true });
-});
-
-//Unauthenticated clients will receive a 401 Unauthorized response instead of
-//the JSON data. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/api', auth.block, function (req, res) {
-    res.json({ success: true });
-});
-
-//An example of accessing the CAS user session variable. This could be used to
-//retrieve your own local user records based on authenticated CAS username.
-app.get('/api/user', auth.block, function (req, res) {
-    res.json({ cas_user: req.session[ auth.userName ] });
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then to the
-//provided "redirectTo" query parameter once authenticated.
-app.get('/authenticate', auth.bounceRedirect);
-
-//This route will de-authenticate the client with the Express server and then
-//redirect the client to the CAS logout page.
-app.get('/logout', auth.logout);
-
-*/

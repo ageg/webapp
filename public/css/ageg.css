@@ -15,3 +15,9 @@
     padding-bottom: 5px;
     padding-top: 5px;
 }
+
+.error, .error:focus, .error:active {
+  border-color: red;
+  outline: red auto thin;
+  outline-color: red;
+}

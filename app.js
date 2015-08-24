@@ -1,10 +1,13 @@
-var config = require('./config/config');
-var express = require('express');
-var mongoose = require("mongoose");
-var bodyParser = require('body-parser');
-var https = require('https'); // use HTTPS Server
-var ejsLayouts = require("express-ejs-layouts");
 var auth = require('./modules/auth'); // Module use for all authentification on server
+var bodyParser = require('body-parser');
+var config = require('./config/config');
+var ejsLayouts = require("express-ejs-layouts");
+var express = require('express');
+var https = require('https'); // use HTTPS Server
+var mongoose = require("mongoose");
+var multer = require("multer");
+var upload = multer({dest: 'uploads/'});
+var url = require('url'); // URL parsing library
 var User = mongoose.model('User');
 
 var app = express();
@@ -20,7 +23,10 @@ var session = require('express-session');
 app.use(session(config.session));
 
 // Required to parse post request
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '10MB'
+}));
 app.use(bodyParser.json());
 
 // Middleware to send user info to layout
@@ -55,8 +61,7 @@ app.post('/addUser', add_user);
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
 app.use('/', require('./routes/bandana.js'));
-app.use('/', require('./routes/profile.js'));
-app.use('/', require('./routes/refunds.js'));
+app.use('/', require('./routes/user.js'));
 
 // Start the server after the db connection
 var db = mongoose.connection;
