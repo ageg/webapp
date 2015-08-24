@@ -66,7 +66,7 @@ config.standards = {
   regExes: {
     cip: /^([a-z]{4}\d{4})$/i,
     dept: /^((?:Biotechnologique|Chimique|Civil|Électrique|Informatique|Mécanique))$/i,
-    email: /^([\w\d\.]+\@(?:usherbrooke.ca|ageg.ca))$/i,
+    email: /^([\w\d\.\-]+\@(?:usherbrooke.ca|ageg.ca))$/i,
     longText: /^((?:\w?\s?\n?)+)$/i,
     name: /^([a-zA-ZàÀâÂéÉèÈêÊëËôÔïÏçÇ\-\'\ \.]+)$/i,
     number: /^(\d+)$/,

@@ -67,16 +67,14 @@ check = function (req, res, next) {
           prenom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.prenom : '',
           nom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.nomfamille : '',
           email: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.courriel : '',
-          rights: auth.adminRights.NONE,
+          rights: adminRights.NONE,
           ageguname: ''
-        }).save(function (err) {
-          if (err){
-            throw err;
-          } else {
-            setSessionUserInfo(req, function () {
-              next();
-            });
-          }
+        });
+        user.save(function (err) {
+          if (err) throw err;
+          setSessionUserInfo(req, function () {
+            next();
+          });
         });
       } else {
         setSessionUserInfo(req, function () {
