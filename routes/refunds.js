@@ -22,11 +22,6 @@ var refundStatus = {
 
 Object.freeze(refundStatus);
 
-// Non API Route:
-router.get('/remboursements', auth.bounce, function(req, res) {
-  res.render('refunds');
-});
-
 /* * * * * * * * * * * * * * * * * * * * *
  * Suggestions de Joël:
  * - Classer les factures par dossier (un dossier par demande)

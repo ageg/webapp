@@ -1,11 +1,10 @@
 var agegApp = angular.module('agegApp', ['ngRoute']);
 
-agegApp.controller('agegHeader',['$scope', '$http', function($scope, $http) {
+agegApp.controller('agegHeader',['$http', '$rootScope', '$scope', 'sharedUserInfo', function($http, $rootScope, $scope, sharedUserInfo) {
   $http({
     method: 'GET',
     url: '/user'
   }).then(function(response) {
-    console.log(response);
     $scope.userInfo = response.data;
   });
   $scope.connected = function() {
@@ -14,6 +13,9 @@ agegApp.controller('agegHeader',['$scope', '$http', function($scope, $http) {
   $scope.fullName = function() {
     return $scope.userInfo.prenom + " " + $scope.userInfo.nom;
   };
+  $scope.on('PullRequest', function () {
+    sharedUserInfo.replyPullRequest($scope.userInfo);
+  });
 }]);
 
 agegApp.controller('profileCtrl',['$http', '$route', '$routeParams', '$scope', function($http, $route, $routeParams, $scope) {
@@ -42,7 +44,6 @@ agegApp.controller('refundsCtrl',['$scope', '$http', function($scope,$http){
     method: 'GET',
     url: '/refunds'
   }).success(function(data, status, headers, config) {
-    console.log('data: ', data );
     $scope.refundList = data;
     $scope.redirectTo = function (dest) {
       window.document.location = dest;
@@ -103,12 +104,11 @@ agegApp.controller('refundsCtrl',['$scope', '$http', function($scope,$http){
   };
 }]);
 
-agegApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+agegApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
   $http({
     method: 'GET',
     url: '/refunds/'+$routeParams.id
   }).success(function(data, status, headers, config) {
-    console.log('Detailed data: ', data );
     $scope.refundInfo = data;
     $scope.refundInfo.archive = $scope.refundInfo.reviewDate;
     // TODO: User Admin Management
@@ -187,8 +187,53 @@ agegApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', funct
   };
 }]);
 
+agegApp.controller('voteAdminCtrl',['$http', '$scope', 'sharedUserInfo', function ($http, $scope, sharedUserInfo) {
+  $http({
+    method: 'GET',
+    url: '/votesAdmin'
+  }).then( function(data, status, headers, config) {
+    $scope.voteList = data;
+  }, function(data, status, headers, config) {
+    console.log('Oops and error', data);
+  });
+  $scope.newVote = function () {
+    sharedUserInfo.PullRequest();
+  };
+  $scope.on('PullReply', function() {
+    $scope.user = sharedUserInfo.user;
+    $http({
+      data: {
+        creator: $scope.cip;
+      },
+      method: 'POST',
+      url: '/votesAdmin/'
+    });
+  });
+}]);
+
+agegApp.controller('voteAdminCtrl',['$http', '$routeParams', '$scope', function ($http, $routeParams, $scope) {
+  $http({
+    method: 'GET',
+    url: '/votesAdmin/'+$routeParams.id
+  }).then( function(data, status, headers, config) {
+    $scope.voteList = data;
+  }, function(data, status, headers, config) {
+    console.log('Oops and error', data);
+  });
+}]);
+
+agegApp.controller('voteMenuCtrl',['$http', '$scope', function ($http, $scope) {
+  $http({
+    method: 'GET',
+    url: '/votes'
+  }).then( function(data, status, headers, config) {
+    $scope.voteInfo = data;
+  }, function(data, status, headers, config) {
+    console.log('Oops and error', data);
+  });
+}]);
+
 agegApp.config(['$routeProvider', function ($routeProvider) {
-  console.log($routeProvider);
   $routeProvider
   .when('/', {
     templateUrl: '/index.html',
@@ -202,10 +247,38 @@ agegApp.config(['$routeProvider', function ($routeProvider) {
   }).when('/remboursements/:id', {
     templateUrl: '/refundDetails.html',
     controller: 'refundDetailCtrl'
+  }).when('/vote',{
+    templateUrl: '/voteMenu.html',
+    controller: 'voteMenuCtrl'
+  }).when('/vote/:id',{
+    templateUrl: '/voteDetail.html',
+    controller: 'voteDetailCtrl'
+  }).when('/voteAdmin',{
+    templateUrl: '/voteAdmin.html',
+    controller: 'voteAdminCtrl'
+  }).when('/voteAdmin/:id',{
+    templateUrl: '/voteAdminDetail.html',
+    controller: 'voteAdminDetailCtrl'
   }).otherwise({
     redirectTo: '/'
   });
 }]);
+
+agegApp.factory('sharedUserInfo', function($rootScope) {
+  var sharedUserInfo = {};
+  
+  sharedUserInfo.user = {};
+  
+  sharedUserInfo.PullRequest = function () {
+    $rootScope.$broadcast('PullRequest');
+  };
+  
+  sharedUserInfo.replyPullRequest = function (user) {
+    this.user = user;
+    $rootScope.$broadcast('PullReply');
+  };
+  
+});
 
 agegApp.filter('sumOfBills', function(){
   return function (data, key) {
