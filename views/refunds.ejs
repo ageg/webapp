@@ -1,6 +1,4 @@
-<ng-view></ng-view>
-
-<script type="text/ng-template" id="/menu.html">
+<script id="/refundMenu.html" type="text/ng-template">
   <div class="jumbotron">
       <h1>Mes demandes de remboursement</h1>
   </div>
@@ -123,7 +121,7 @@
     </table>
   </div>
 </script>
-<script id="/details.html" type="text/ng-template">
+<script id="/refundDetails.html" type="text/ng-template">
   <form role="form" enctype="multipart/form-data" method="post" id="refundform" name="refundform" ng-submit="reqSubmit()">
     <fieldset>
       <legend>Demandeur:</legend>
@@ -209,4 +207,3 @@
     </fieldset>
   </form>
 </script>
-<script type='application/javascript' src="/js/refund-scripts.js"></script>
