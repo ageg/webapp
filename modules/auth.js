@@ -38,7 +38,9 @@ adminRights = {
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
-  service_url : 'https://localhost:8443'
+  service_url : 'https://localhost:8443',
+  // Based on a tweaked version of CASAuthentication, pull request is active, should be merged soon.
+  session_info: 'cas_userinfo'
 });
 
 setSessionUserInfo = function (req, callback) {
@@ -47,7 +49,6 @@ setSessionUserInfo = function (req, callback) {
     if (obj) {
       req.session.userInfo = obj;
     }
-    
     callback();
   });
 }
@@ -55,16 +56,26 @@ setSessionUserInfo = function (req, callback) {
 check = function (req, res, next) {
   if (!req.session.userInfo) {
     var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
+    User.findOne({ cip: cip },{
+      __v: false,
+      _id: false
+    }, function (err, obj) {
       if (!obj) {
-        // Create blank session info for AJAX
-        req.session.userInfo = createBlankUser(cip);
-        res.render("profile", {
-          depts: depts,
-          userInfo: req.session.userInfo,
-          regExes: config.standards.htmlRegExes
+        // Create new user info from CAS info
+        var user = new User({
+          cip: req.session.cas_user,
+          prenom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.prenom : '',
+          nom: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.nomfamille : '',
+          email: req.session.cas_userinfo !== undefined ? req.session.cas_userinfo.courriel : '',
+          rights: adminRights.NONE,
+          ageguname: ''
         });
-        //res.render("add_user", { cip: cip });
+        user.save(function (err) {
+          if (err) throw err;
+          setSessionUserInfo(req, function () {
+            next();
+          });
+        });
       } else {
         setSessionUserInfo(req, function () {
           next();
@@ -121,19 +132,4 @@ module.exports = {
   allow_admin: allow_admin,
   cas: cas,
   setSessionUserInfo: setSessionUserInfo
-}
-
-function createBlankUser(cip) {
-  var blank = new User({
-    ageguname: '',
-    cip: cip,
-    prenom: '',
-    nom: '',
-    email: '',
-    concentration: '',
-    phone: '',
-    promo: 0,
-    rights: 0
-  });
-  return blank;
 }

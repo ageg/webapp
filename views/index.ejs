@@ -1,4 +1,9 @@
-<div class="jumbotron">
-    <h1>AGEG</h1>
-    <p>Site web dynamique de l'AGEG</p>
-</div>
+<ng-view></ng-view>
+
+<script type="text/ng-template" id="/index.html">
+  <div class="jumbotron">
+      <h1>AGEG</h1>
+      <p>Bienvenue {{ userInfo.prenom }} sur le site web dynamique de l'AGEG</p>
+  </div>
+</script>
+<% include profile.ejs %>
