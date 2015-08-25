@@ -1,0 +1,108 @@
+<script id="/voteAdmin.html" type="text/ng-template">
+  <div class="jumbotron">
+    <p>Votes</p>
+  </div>
+  <div class="btn-group btn-group-justified">
+    <div class="btn-group">
+      <button type="button" class="btn btn-default" id="new" name="new" ng-click="newVote()">Créer un nouveau vote</button>
+    </div>
+  </div>
+  <div>
+    <table class="table table-striped">
+      <caption>Votes en cours de rédaction</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Créateur</th>
+          <th>Ouverture</th>
+          <th>Fermeture</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="entry in voteList | orderBy: 'voteID'" ng-click="redirectTo('#/voteAdmin/'+entry.voteID)">
+          <td>{{ entry.voteID }}</td>
+          <td>{{ entry.cip }}</td>
+          <td>{{ entry.startDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+          <td>{{ entry.endDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th>Créateur</th>
+          <th>Ouverture</th>
+          <th>Fermeture</th>
+        </tr>
+      </tfoot>
+    </table>
+</script>
+<script id="/voteAdminDetail.html" type="text/ng-template">
+  <div class="jumbotron">
+    <p>Modifier le vote {{ voteInfo.voteID }}: {{ voteInfo.title }}</p>
+  </div>
+  <form role="form" enctype="multipart/form-data" method="post" id="voteForm" name="voteForm" ng-submit="voteSubmit()">
+    <fieldset>
+      <legend for="cip">Créateur:</legend>
+      <input type="text" class="form-control" id="cip" name="cip" ng-model="voteInfo.creator" placeholder="AGEG1337" readonly required>
+    </fieldset>
+    <fieldset>
+      <legend>Demande</legend>
+      <div class="form-group">
+        <label for="title">Titre</label>
+        <input type="text" class="form-control" id="title" name="title" ng-model="voteInfo.title" placeholder="Titre du vote" required>
+      </div>
+      <div class="form-group">
+        <label for="cateremboursements/gory">Catégorie budgétaire</label>
+        <input type="text" class="form-control" id="description" name="description" ng-model="voteInfo.description" placeholder="Description du vote" required>
+      </div>
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea class="form-control" id="notes" name="notes" ng-model="voteInfo.notes" placeholder="Notes sur la demande" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="startDate">Ouverture du vote</label>
+        <input class="form-control" id="startDate" name="startDate" ng-model="voteInfo.startDate" type="datetime-local">
+      </div>
+      <div class="form-group">
+        <label for="endDate">Clôture du vote</label>
+        <input class="form-control" id="endDate" name="endDate" ng-model="voteInfo.endDate" type="datetime-local">
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Champs pour les utilisateurs</legend>
+      <fieldset ng-repeat="field in voteInfo.votes">
+        <legend>{{ field.prompt }}</legend>
+        <div class="form-group">
+          <input class="form-control" ng-model="field.prompt" type="text">
+          <div class="form-group" ng-repeat="option in field.options">
+            <input class="form-control" ng-model="option.name" type="text">
+          </div>
+        </div>
+      </fieldset>
+    </fieldset>
+    <fieldset>
+      <legend>Formulaires préfaits</legend>
+      <div class='btn-group btn-group-justified'>
+        <div class='btn-group'>
+          <button class='btn btn-default' id='btnCA' name='btnCA' type='button'>Élections CA</button>
+        </div>
+        <div class='btn-group'>
+          <button class='btn btn-default' id='btnCE' name='btnCE' ng-click='MakeCEForm();' type='button'>Élections CE</button>
+        </div>
+      </div>
+    </fieldset>
+    <hr/>
+    <div class="btn-group btn-group-justified">
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary" name="submit">Soumettre la demande</button>
+      </div>
+    </div>
+  </form>
+</script>
+<script id="/voteMenu.html" type="text/ng-template">
+  <div class="jumbotron">
+    <p>Votes en cours</p>
+  </div>
+</script>
+<script id="/voteDetail.html" type="text/ng-template">
+</script>

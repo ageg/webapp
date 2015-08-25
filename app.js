@@ -55,11 +55,7 @@ app.get('/logout', function (req, res) {
   res.redirect('/');
 });
 
-var add_user = require("./routes/add_user.js");
-app.post('/addUser', add_user);
-
 app.use('/', require('./routes/admin.js'));
-app.use('/', require('./routes/bandana.js'));
 app.use('/', require('./routes/refunds.js'));
 app.use('/', require('./routes/user.js'));
 app.use('/', require('./routes/votes.js'));

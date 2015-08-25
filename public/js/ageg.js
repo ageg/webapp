@@ -13,9 +13,7 @@ agegApp.controller('agegHeader',['$http', '$rootScope', '$scope', 'sharedUserInf
   $scope.fullName = function() {
     return $scope.userInfo.prenom + " " + $scope.userInfo.nom;
   };
-  $scope.on('PullRequest', function () {
-    sharedUserInfo.replyPullRequest($scope.userInfo);
-  });
+  sharedUserInfo.setUser($scope.userInfo);
 }]);
 
 agegApp.controller('profileCtrl',['$http', '$route', '$routeParams', '$scope', function($http, $route, $routeParams, $scope) {
@@ -187,39 +185,79 @@ agegApp.controller('refundDetailCtrl', ['$scope', '$http', '$routeParams', funct
   };
 }]);
 
-agegApp.controller('voteAdminCtrl',['$http', '$scope', 'sharedUserInfo', function ($http, $scope, sharedUserInfo) {
+agegApp.controller('voteAdminCtrl',['$http', '$rootScope', '$scope', 'sharedUserInfo', function ($http, $rootScope, $scope, sharedUserInfo) {
   $http({
     method: 'GET',
     url: '/votesAdmin'
   }).then( function(data, status, headers, config) {
-    $scope.voteList = data;
+    $scope.voteList = data.data;
   }, function(data, status, headers, config) {
     console.log('Oops and error', data);
   });
   $scope.newVote = function () {
-    sharedUserInfo.PullRequest();
-  };
-  $scope.on('PullReply', function() {
-    $scope.user = sharedUserInfo.user;
     $http({
-      data: {
-        creator: $scope.cip;
-      },
+      data: sharedUserInfo.getUser(),
       method: 'POST',
-      url: '/votesAdmin/'
+      url: '/votesAdmin'
+    }).then(function (data, status, headers, config) {
+      // Redirect
+    }, function (data, status, headers, config) {
+      console.log('Oops and error', data);
     });
-  });
+  };
 }]);
 
-agegApp.controller('voteAdminCtrl',['$http', '$routeParams', '$scope', function ($http, $routeParams, $scope) {
+agegApp.controller('voteAdminDetailCtrl',['$http', '$routeParams', '$scope', function ($http, $routeParams, $scope) {
   $http({
     method: 'GET',
     url: '/votesAdmin/'+$routeParams.id
   }).then( function(data, status, headers, config) {
-    $scope.voteList = data;
+    $scope.voteInfo = data.data;
+    $scope.voteInfo.startDate = $scope.ParseDate($scope.voteInfo.startDate);
+    $scope.voteInfo.endDate = $scope.ParseDate($scope.voteInfo.endDate)
   }, function(data, status, headers, config) {
     console.log('Oops and error', data);
   });
+  $scope.MakeCEForm = function () {
+    $scope.voteInfo.votes = [{
+      prompt: 'Présidence',
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Externes'
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Financières'
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Internes'
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Pédagogiques'
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Sociales'
+    }, {
+      prompt: 'Vice-Présidence aux Affaires Universitaires'
+    }, {
+      prompt: 'Vice-Présidence à la Formation Étudiante'
+    }, ];
+    $scope.voteSubmit();
+  };
+  $scope.voteSubmit = function () {
+    $http({
+      data: $scope.voteInfo,
+      method: 'PUT',
+      url: '/votesAdmin/'+$routeParams.id
+    }).then( function(data, status, headers, config) {
+      $scope.voteInfo = data.data;
+      $scope.voteInfo.startDate = $scope.ParseDate($scope.voteInfo.startDate);
+      $scope.voteInfo.endDate = $scope.ParseDate($scope.voteInfo.endDate)
+    }, function(data, status, headers, config) {
+      console.log('Oops and error', data);
+    });
+  };
+  $scope.ParseDate = function (value) {
+    var tmp = new Date();
+    if (value) {
+      tmp = new Date(value);
+    }
+    return tmp;
+  };
 }]);
 
 agegApp.controller('voteMenuCtrl',['$http', '$scope', function ($http, $scope) {
@@ -265,19 +303,14 @@ agegApp.config(['$routeProvider', function ($routeProvider) {
 }]);
 
 agegApp.factory('sharedUserInfo', function($rootScope) {
-  var sharedUserInfo = {};
-  
-  sharedUserInfo.user = {};
-  
-  sharedUserInfo.PullRequest = function () {
-    $rootScope.$broadcast('PullRequest');
+  var userInfo = {};
+  return {
+    getUser: function () {
+      return userInfo;
+    }, setUser: function (value) {
+      userInfo = value;
+    }
   };
-  
-  sharedUserInfo.replyPullRequest = function (user) {
-    this.user = user;
-    $rootScope.$broadcast('PullReply');
-  };
-  
 });
 
 agegApp.filter('sumOfBills', function(){
