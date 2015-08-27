@@ -33,6 +33,11 @@ config.standards = {
   }
 };
 
+config.rights = {  
+  list: ["admin", "permie", "bandana"]  
+};
+
+
 config.ONE_YEAR = 31536000000; // seconds
 
 module.exports = config;

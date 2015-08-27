@@ -1,0 +1,27 @@
+<h2>Configuration des droits des usagers</h2>
+<h4>Filtres</h4>
+<div class="row">
+    <div class="col-md-3">
+        Nom: <input type="text" class="form-control" ng-model="nameFilter" ng-change="filterName('nameFilter')">
+    </div>
+    <div class="col-md-3" ng-repeat="right in rights">
+        {{right}}: <input type="checkbox" class="form-control" ng-model="checkboxes[right]" ng-change="filterRight(right)">
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        Cip: <input type="text" class="form-control" ng-model="cipFilter" ng-change="filterCip('cipFilter')">
+    </div>
+</div>
+<br>
+<h4>Usagers</h4>
+<li class="list-group-item" ng-repeat="member in usersDisplay">
+    <div class="row">
+        <div class="col-md-3">{{member.prenom}} {{member.nom}} ({{member.cip}})</div>
+        <div class="col-md-3" ng-repeat="right in rights">
+            {{right}}
+            <a ng-if="member.rights.indexOf(right) === -1" ng-click="addRight(member, right)"><span class="glyphicon glyphicon-plus"></span></a>
+            <a ng-if="member.rights.indexOf(right) > -1" ng-click="removeRight(member, right)"><span class="glyphicon glyphicon-minus"></span></a>
+        </div>
+    </div>
+</li>

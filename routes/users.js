@@ -4,10 +4,11 @@ var User = mongoose.model('User');
 var auth = require("../modules/auth");
 var utils = require("../modules/utils");
 var express = require('express');
+var config = require("../config/config.js")
 var router = express.Router();
 
 router.get('/users', function (req, res, next) {
-  User.find({}, 'cip', function (err, users) {
+  User.find({}, function (err, users) {
     if (err) next(err);
 
     res.json(users);
@@ -30,7 +31,7 @@ router.post('/users', utils.verify_params(['cip','prenom','nom','email','phone',
           phone: infos.phone,
           concentration: infos.concentration,
           promo: infos.promo,
-          rights: auth.adminRights.ADMIN,
+          rights: config.rights.list,
         });
       } else {
         user = new User({
@@ -41,7 +42,6 @@ router.post('/users', utils.verify_params(['cip','prenom','nom','email','phone',
           phone: infos.phone,
           concentration: infos.concentration,
           promo: infos.promo,
-          rights: auth.adminRights.NONE,
         });
       }
       
@@ -102,8 +102,44 @@ router.put('/users/:cip', utils.verify_params(['prenom', 'nom', 'email', 'phone'
   }
 });
 
-router.get('/login', auth.bounce, function (req, res) {
-  res.json({ cip: req.session['cas_user'] });
+router.post('/users/:cip/rights', [auth.allow_admin, utils.verify_params(['right'])], function (req, res, next) {
+  User.update({ cip: req.params.cip }, { $push: { rights: req.body.right } }, function (err, obj) {
+    if (err) next(err);
+    else {
+      res.status(200);
+      res.json({ message: req.body.right + ' added succesfully' });
+    }
+  });
 });
+
+router.delete('/users/:cip/rights', [auth.allow_admin, utils.verify_queryparams(['right'])], function (req, res, next) {
+  User.update({ cip: req.params.cip }, { $pull: { rights: req.query.right } }, function (err, obj) {
+    if (err) next(err);
+    else {
+      res.status(200);
+      res.json({ message: req.body.right + ' removed succesfully' });
+    }
+  });
+});
+
+router.get('/user_rights', function (req, res, next) {
+  res.json({ user_rights: config.rights.list });
+});
+
+router.get('/login', function (req, res) {
+  if (req.session['cas_user']) {
+    res.json({ cip: req.session['cas_user'] });
+  } else {
+    res.status(403);
+    res.json({
+      error: 'You need to login to access the API',
+      path: '/loginCAS'
+    });
+  }
+});
+
+router.get('/loginCAS', auth.bounce, function (req, res) {
+  res.redirect('/');
+})
 
 module.exports = router;

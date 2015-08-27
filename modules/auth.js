@@ -23,14 +23,8 @@ var CASAuthentication = require('cas-authentication');
 //Load db to acess user data
 var mongoose = require("mongoose");
 require('../models/user.js');
+var config = require('../config/config.js');
 var User = mongoose.model('User');
-
-adminRights = {
-  NONE: 0,
-  BANDANA: 1,
-  PERMIE: 2,
-  ADMIN: 3
-}
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
@@ -39,33 +33,39 @@ var cas = new CASAuthentication({
 
 allow = function (rights) {
   return function (req, res, next) {
-    var cip = req.session[cas.session_name];
-    User.findOne({ cip: cip }, function (err, obj) {
-      var found = false;
-      if (obj) {
-        rights.forEach(function (element, index, array) {
-          if (obj.rights == element) {
-            found = true;
-            next();
-          }
+    if (!req.session[cas.session_name]) {
+      res.status('403');
+      res.json('error: No user logged in!');
+      res.end();
+    }
+    else {
+      User.findOne({ cip: req.session[cas.session_name]}, function (err, obj) {
+        var userAllowed = false
+        obj.rights.forEach(function (userRight) {
+          rights.forEach(function (right) {
+            if (userRight === right && !userAllowed) {
+              userAllowed = true;
+              next();
+            }
+          })
         });
-      }
-      
-      if (!found) {
-        res.status('403');
-        res.send('403: Forbidden');
-      }
-    });
+        if (!userAllowed) {
+          res.status('403');
+          res.json({ error: 'The user doesnt match the required authorizations: ' + JSON.stringify(rights) });
+          res.end();
+        }
+      });
+    }
   }
 }
 
 bounce = [cas.bounce];
 
-allow_bandana = [cas.bounce, allow([adminRights.BANDANA, adminRights.PERMIE, adminRights.ADMIN])];
+allow_bandana = [allow(["bandana", "permie", "admin"])];
 
-allow_permie = [cas.bounce, allow([adminRights.PERMIE, adminRights.ADMIN])];
+allow_permie = [allow(["permie", "admin"])];
 
-allow_admin = [cas.bounce, allow([adminRights.ADMIN])];
+allow_admin = [allow(["admin"])];
 
 block = [cas.block];
 
@@ -77,7 +77,6 @@ module.exports = {
   bounce: bounce,
   block: block,
   bounceRedirect: cas.bounce_redirect,
-  adminRights: adminRights,
   allow_permie: allow_permie,
   allow_admin: allow_admin,
   cas: cas,

@@ -22,8 +22,11 @@ app.use('/', require('./routes/users.js'));
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
 app.use('/', require('./routes/bandana.js'));
-app.use('/', require('./routes/profile.js'));
 app.use('/', require('./routes/refunds.js'));
+
+app.use(function (req, res) {
+  res.sendfile(__dirname + '/Public/index.html');
+});
 
 // Error handler
 app.use(function (err, req, res, next) {
