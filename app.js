@@ -3,17 +3,11 @@ var express = require('express');
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var https = require('https'); // use HTTPS Server
-var ejsLayouts = require("express-ejs-layouts");
 var auth = require('./modules/auth'); // Module use for all authentification on server
 var User = mongoose.model('User');
 
 var app = express();
 app.use(express.static(__dirname + '/public'));
-
-// Set view engine and defaut layout
-app.set('view engine', 'ejs');
-app.use(ejsLayouts);
-app.set("views","./views");
 
 // Require to allow session variables, used for authentification
 var session = require('express-session');
@@ -23,40 +17,22 @@ app.use(session(config.session));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Middleware to send user info to layout
-app.use(function (req, res, next) {
-  if (req.session.userInfo) {
-    res.locals.userInfo = req.session.userInfo;
-  }
-
-  res.locals.adminRights = auth.adminRights;
-  next();
-});
-
 // Routes
-var index = require("./routes/index.js");
-app.get('/', index);
-
-app.get('/login', auth.bounce, function (req, res) {
-  auth.setSessionUserInfo(req, function() {
-    res.redirect('/');
-  });
-});
-
-app.get('/logout', function (req, res) {
-  delete req.session.userInfo;
-  delete req.session[auth.userNameSession];
-  res.redirect('/');
-});
-
-var add_user = require("./routes/add_user.js");
-app.post('/addUser', add_user);
-
+app.use('/', require('./routes/users.js'));
 app.use('/', require('./routes/add_location.js'));
 app.use('/', require('./routes/admin.js'));
 app.use('/', require('./routes/bandana.js'));
-app.use('/', require('./routes/profile.js'));
 app.use('/', require('./routes/refunds.js'));
+
+app.use(function (req, res) {
+  res.sendfile(__dirname + '/Public/index.html');
+});
+
+// Error handler
+app.use(function (err, req, res, next) {
+  res.status(500);
+  res.json({ error: err.message });
+});
 
 // Start the server after the db connection
 var db = mongoose.connection;
