@@ -50,28 +50,25 @@ app.controller('AdminController', ['$scope', 'UserService', '$timeout', function
             });
     };
 
-    $scope.filterName = function(model) {
-        $scope.usersDisplay = _.filter($scope.users, function(user){
-            var username = user.prenom + ' ' + user.nom;
-            return username.indexOf($scope[model]) > -1;
-        });
-    };
-
-    $scope.filterCip = function(model) {
-        $scope.usersDisplay = _.filter($scope.users, function(user){
-            return user.cip.indexOf($scope[model]) > -1;
-        });
-    };
-
     $scope.checkboxes = {};
+    $scope.cipFilter = '';
+    $scope.nameFilter = '';
 
-    $scope.filterRight = function(right) {
-        $scope.usersDisplay = _.filter($scope.users, function(user){
-            if ($scope.checkboxes[right]) {
-                return user.rights.indexOf(right) > -1;
-            } else {
-                return true;
-            }
+    $scope.filter = function(cip, name) {
+      $scope.usersDisplay = _.filter($scope.users, function(user) {
+        var filter = true;
+        $scope.rights.forEach(function(right) {
+          if ($scope.checkboxes[right] && filter) {
+            filter = user.rights.indexOf(right) > -1;
+          }
         });
-    }
+
+        if (filter) {
+          var username = user.prenom + ' ' + user.nom;
+          filter = username.indexOf($scope[name]) > -1 && user.cip.indexOf($scope[cip]) > -1;
+        }
+
+        return filter;
+      });
+    };
 }]);

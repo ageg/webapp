@@ -25,7 +25,7 @@ app.use('/', require('./routes/bandana.js'));
 app.use('/', require('./routes/refunds.js'));
 
 app.use(function (req, res) {
-  res.sendfile(__dirname + '/Public/index.html');
+  res.sendFile(__dirname + '/Public/index.html');
 });
 
 // Error handler
