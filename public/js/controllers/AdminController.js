@@ -1,15 +1,22 @@
 app.controller('AdminController', ['$scope', 'UserService', '$timeout', function ($scope, UserService, $timeout) {
-    UserService.getAll().success(function (data){
-        $scope.users = data;
-        $scope.usersDisplay = data;
+    UserService.getAll()
+        .then(function (data){
+            $scope.users = data;
+            $scope.usersDisplay = data;
+        }, function(data) {
+            console.log(JSON.stringify(data));
     });
-    UserService.getAllRights().success(function(data){
-        $scope.rights = data.user_rights;
+
+    UserService.getAllRights()
+        .then(function(data){
+            $scope.rights = data.user_rights;
+        }, function(data) {
+            console.log(JSON.stringify(data));
     });
 
     $scope.addRight = function(user, right){
         UserService.addRight(user.cip, right)
-            .success(function(data){
+            .then(function(data){
                 user.rights.push(right);
 
                 var match = _.find($scope.users, function(item) { return item.cip === user.cip })
@@ -21,8 +28,7 @@ app.controller('AdminController', ['$scope', 'UserService', '$timeout', function
                 if (match) {
                     match.rights = user.rights;
                 }
-            })
-            .error(function(data){
+            }, function(data){
                 console.log(JSON.stringify(data));
             });
 
@@ -30,7 +36,7 @@ app.controller('AdminController', ['$scope', 'UserService', '$timeout', function
 
     $scope.removeRight = function(user, right) {
         UserService.removeRight(user.cip, right)
-            .success(function(data){
+            .then(function(data){
                 var index = user.rights.indexOf(right);
                 if (index > -1) {
                     user.rights.splice(index, 1);
@@ -44,8 +50,7 @@ app.controller('AdminController', ['$scope', 'UserService', '$timeout', function
                 if (match) {
                     match.rights = user.rights;
                 }
-            })
-            .error(function(data){
+            }, function(data){
                console.log(JSON.stringify(data));
             });
     };
