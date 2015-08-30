@@ -6,6 +6,10 @@ var Schema = mongoose.Schema;
 var cnx = mongoose.createConnection("mongodb://localhost/ageg");
 autoIncrement.initialize(cnx);
 
+var voteType = {
+  list: [ 'radio' ]
+};
+
 var VoteSchema = new Schema({
   voteID: Number,
   creator: {
@@ -23,9 +27,16 @@ var VoteSchema = new Schema({
   votes: [{
     options: [{
       name: String,
-      type: String
+      /*type: {
+        type: String,
+        enum: voteType.list
+      }*/
     }], // Vote options given to the user
     prompt: String, // Prompt String
+    type: {
+      type: String,
+      enum: voteType.list
+    }, // 
     vote: String
   }]
 });

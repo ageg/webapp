@@ -220,7 +220,7 @@ agegApp.controller('voteAdminDetailCtrl',['$http', '$routeParams', '$scope', fun
   });
   $scope.MakeCEForm = function () {
     $scope.voteInfo.votes = [{
-      prompt: 'Présidence',
+      prompt: 'Présidence'
     }, {
       prompt: 'Vice-Présidence aux Affaires Externes'
     }, {
