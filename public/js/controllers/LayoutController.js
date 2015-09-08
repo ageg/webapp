@@ -17,4 +17,14 @@
     }, function (data) {
       $window.location = data.path
     });
+
+  $scope.logout = function() {
+    UserService.logout()
+        .then(function(data) {
+            $window.location.reload();
+        }, function (err) {
+            $window.location.reload();
+            console.log(JSON.stringify(err));
+        });
+  };
 }]);

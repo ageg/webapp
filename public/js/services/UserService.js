@@ -86,5 +86,15 @@
             })
     };
 
+    factory.logout = function() {
+        return $http.get('logout')
+            .then(function(data) {
+                return data.data;
+            },
+            function(data){
+                return $q.reject(data.data);
+            })
+    };
+
     return factory;
 }]);

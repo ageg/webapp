@@ -28,7 +28,8 @@ var User = mongoose.model('User');
 
 var cas = new CASAuthentication({
   cas_url     : 'https://cas.usherbrooke.ca',
-  service_url : 'https://localhost:' + ('8443')
+  service_url : 'https://localhost:' + ('8443'),
+  destroy_session : true
 });
 
 allow = function (rights) {
@@ -79,41 +80,5 @@ module.exports = {
   bounceRedirect: cas.bounce_redirect,
   allow_permie: allow_permie,
   allow_admin: allow_admin,
-  cas: cas,
-}
-
-/*
- 
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/login', auth.bounce, function (req, res) {
-    res.redirect('/');
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then back to
-//this route once authenticated.
-app.get('/firstLogin', auth.bounceWOCheck, function (req, res) {
-    res.json({ success: true });
-});
-
-//Unauthenticated clients will receive a 401 Unauthorized response instead of
-//the JSON data. If the user is not in our database, they'll be redirect to firstLogin
-app.get('/api', auth.block, function (req, res) {
-    res.json({ success: true });
-});
-
-//An example of accessing the CAS user session variable. This could be used to
-//retrieve your own local user records based on authenticated CAS username.
-app.get('/api/user', auth.block, function (req, res) {
-    res.json({ cas_user: req.session[ auth.userName ] });
-});
-
-//Unauthenticated clients will be redirected to the CAS login and then to the
-//provided "redirectTo" query parameter once authenticated.
-app.get('/authenticate', auth.bounceRedirect);
-
-//This route will de-authenticate the client with the Express server and then
-//redirect the client to the CAS logout page.
-app.get('/logout', auth.logout);
-
-*/
+  cas: cas
+};

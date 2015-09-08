@@ -140,6 +140,8 @@ router.get('/login', function (req, res) {
 
 router.get('/loginCAS', auth.bounce, function (req, res) {
   res.redirect('/');
-})
+});
+
+router.get('/logout', auth.logout);
 
 module.exports = router;
