@@ -1,0 +1,45 @@
+<h3>Modifier votre profil AGEG</h3>
+<form novalidate>
+    <div class="form-group">
+    Prenom:<br>
+    <input type="text" class="form-control" ng-model="user.prenom">
+    </div>
+
+    <div class="form-group">
+    Nom:<br>
+    <input type="text" class="form-control" ng-model="user.nom">
+    </div>
+
+    <div class="form-group">
+    Email:<br>
+    <input type="text" class="form-control" ng-model="user.email">
+    </div>
+
+    <div class="form-group">
+    Concentration:<br>
+    <select class="form-control" ng-model="user.concentration">
+        <option>Biotechnologique</option>
+        <option>Chimique</option>
+        <option>Civil</option>
+        <option>Électrique</option>
+        <option>Informatique</option>
+        <option>Mécanique</option>
+    </select>
+    </div>
+
+    <div class="form-group">
+    Telephone:<br>
+    <input type="text" class="form-control" ng-model="user.phone">
+    </div>
+
+    <div class="form-group">
+    Promotion:<br>
+    <input type="number" class="form-control" ng-model="user.promo">
+    </div>
+
+    <br>
+    <div class="row">
+        <button ng-click="save()" class="btn btn-success col-md-2">Sauvegarder</button>
+        <p ng-bind="change_message" class="col-md-3"></p>
+    </div>
+</form>
