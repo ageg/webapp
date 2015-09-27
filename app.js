@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/', require('./routes/users.js'));
 app.use('/', require('./routes/admin.js'));
+app.use('/', require('./routes/3dprint.js'));
 
 app.use(function (req, res) {
   res.sendFile(__dirname + '/Public/index.html');

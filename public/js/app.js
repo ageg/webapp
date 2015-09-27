@@ -5,6 +5,10 @@ app.config(function ($routeProvider, $locationProvider) {
       controller: 'HomeController', 
       templateUrl: 'views/home.html'
     })
+    .when('/3d', {
+      controller: '3DController',
+      templateUrl: 'views/3d.html'
+    })
     .when('/rights', {
       controller: 'AdminController',
       templateUrl: 'views/adminrights.html'
